@@ -1,0 +1,23 @@
+@import '~antd/dist/antd.css';
+
+.App {
+  text-align: center;
+}
+.logo {
+  width: 120px;
+  height: 31px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 16px 28px 16px 0;
+  float: left;
+}
+.requests-bar {
+  margin: 1em 0em;
+}
+
+.ant-layout-sider {
+  height: calc(100vh - 64px);
+}
+
+.ant-layout-content {
+  max-height: 600px;
+}
