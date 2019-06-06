@@ -1,78 +1,46 @@
 import React from "react";
-
 import { Modal, Button, Table, Divider } from "antd";
-
 import LoanReqFormWrapper from "../loanreqform.js";
+import {Proxy} from 'braid-client';
 
-const dataSource = [
-  {
-    key: "1",
-    id: "REF573535",
-    agent: 'Mike',
-    amount: "10,00,000",
-    description: "Test Description",
-    status: 'open'
-  },
-  {
-    key: "2",
-    id: "REF573536",
-    agent: 'John',
-    amount: "10,50,000",
-    description: "Test Description",
-    status: 'verified'
-  },
-  {
-    key: "3",
-    id: "REF573537",
-    agent: 'Sham',
-    amount: "12,00,000",
-    description: "Test Description",
-    status: 'locked'
-  },
-  {
-    key: "4",
-    id: "REF573538",
-    agent: 'Ram',
-    amount: "10,40,000",
-    description: "Test Description",
-    status: 'issued'
-  },
-];
+
 
 
 const columns = [
-  {
-    title: "ID",
-    dataIndex: "id",
-    key: "id"
-  },
-  {
-    title: "Agent",
-    dataIndex: "agent",
-    key: "agent"
-  },
-  {
-    title: "Amount",
-    dataIndex: "amount",
-    key: "amount"
-  },
-  {
-    title: "Description",
-    dataIndex: "description",
-    key: "description"
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-    render: status => (
-      <span style={{color:'#008b7d',fontWeight:'500',cursor:'pointer'}}>{status.toUpperCase()}</span>
-    )
-  },
-  {
-    title: "Action",
-    dataIndex: "action",
-    key: "action",
+    {
+        title: "REQ ID",
+        dataIndex: "loanReqID.id",
+        key: "loanReqID "
+    },
+    {
+        title: "Borrower Name",
+        dataIndex: "companyName",
+        key: "companyName"
+    },
+    {
+        title: "Timestamp",
+        dataIndex: "timestamp",
+        key: "timestamp"
+    },
+
+    {
+        title: "Amount",
+        dataIndex: "amount",
+        key: "amount"
+    },
+
+    {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        render: status => (
+        <span style={{color:'#008b7d',fontWeight:'500',cursor:'pointer'}}>{status.toUpperCase()}</span>
+        )
+    },
+    {
+        title: "Action",
+        dataIndex: "action",
+        key: "action",
     render: (text, record) => (
       <span>
         <span style={{color:'green',cursor:'pointer',textTransform:'capitalize'}}> {actionList[statusList.indexOf(record.status)]}</span>
@@ -91,12 +59,41 @@ class BorrowerDashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      visible: false
+      visible: false,
+      loanRequests: [],
     };
     this.showModal = this.showModal.bind(this);
+
+
   }
 
-  showModal = () => {
+    componentWillMount() {
+
+        this.onRPCOpen = this.onRPCOpen.bind(this);
+        this.braid = new Proxy({
+            url: "http://projects.koshikraj.com:8888/api/"
+        }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
+
+
+    }
+
+
+    onRPCOpen() { console.log('Connected to node.');
+        this.braid.syndService.listLoanRequests(
+            result => {console.log("State details: " + JSON.stringify(result) + "!");
+
+            let dataSource = [];
+            result.map(item => dataSource.push(item.state.data))
+            this.setState({loanRequests:dataSource});
+            });
+    }
+
+    onRPCClose() { console.log('Disconnected from node.'); }
+
+    onRPCError(err) { console.error(err); }
+
+
+    showModal = () => {
     this.setState({
       visible: true
     });
@@ -153,7 +150,7 @@ class BorrowerDashboard extends React.Component {
 
             </Modal>
           </div>
-          <Table dataSource={dataSource} columns={columns} />
+          <Table dataSource={this.state.loanRequests} columns={columns} />
         </div>
 
         <div>
@@ -167,7 +164,7 @@ class BorrowerDashboard extends React.Component {
             Live Deals
           </span>
 
-          <Table dataSource={dataSource} columns={columns} />
+          <Table dataSource={[]} columns={columns} />
         </div>
       </div>
     );
