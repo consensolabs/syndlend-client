@@ -3,56 +3,54 @@ import { Modal, Button, Table, Divider } from "antd";
 import LoanReqFormWrapper from "../loanreqform.js";
 import {Proxy} from 'braid-client';
 
-
-
-
 const columns = [
-    {
-        title: "REQ ID",
-        dataIndex: "loanReqID.id",
-        key: "loanReqID "
-    },
-    {
-        title: "Borrower Name",
-        dataIndex: "companyName",
-        key: "companyName"
-    },
-    {
-        title: "Timestamp",
-        dataIndex: "timestamp",
-        key: "timestamp"
-    },
+  {
+    title: "REQ ID",
+    dataIndex: "loanReqID.id",
+    key: "loanReqID "
+  },
+  {
+    title: "Borrower Name",
+    dataIndex: "companyName",
+    key: "companyName"
+  },
+  {
+    title: "Timestamp",
+    dataIndex: "timestamp",
+    key: "timestamp"
+  },
 
-    {
-        title: "Amount",
-        dataIndex: "amount",
-        key: "amount"
-    },
+  {
+    title: "Amount",
+    dataIndex: "amount",
+    key: "amount"
+  },
 
-    {
-        title: "Status",
-        dataIndex: "status",
-        key: "status",
-        render: status => (
-        <span style={{color:'#008b7d',fontWeight:'500',cursor:'pointer'}}>{status.toUpperCase()}</span>
-        )
-    },
-    {
-        title: "Action",
-        dataIndex: "action",
-        key: "action",
+  {
+    title: "Status",
+    dataIndex: "status",
+    key: "status",
+    render: status => (
+      <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }}>{status.toUpperCase()}</span>
+    )
+  },
+  {
+    title: "Action",
+    dataIndex: "action",
+    key: "action",
     render: (text, record) => (
       <span>
-        <span style={{color:'green',cursor:'pointer',textTransform:'capitalize'}}> {actionList[statusList.indexOf(record.status)]}</span>
+        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }}> {actionList[statusList.indexOf(record.status)]}</span>
         <Divider type="vertical" />
-        <span style={{color:'brown',cursor:'pointer',textTransform:'capitalize'}}> Reject </span>
+        <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
       </span>
     )
   }
 ];
 
-const statusList = [ 'open', 'verified', 'issued', 'proposed', 'locked', 'complete']
-const actionList = [ 'verify', 'issue', 'propose', 'lock', 'complete']
+const statusList = [ 'open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
+
+const actionList = [ 'verify', 'issue', 'propose', 'lock', 'complete'];
 
 class BorrowerDashboard extends React.Component {
 
@@ -63,37 +61,32 @@ class BorrowerDashboard extends React.Component {
       loanRequests: [],
     };
     this.showModal = this.showModal.bind(this);
-
-
   }
 
-    componentWillMount() {
-
-        this.onRPCOpen = this.onRPCOpen.bind(this);
-        this.braid = new Proxy({
-            url: "http://projects.koshikraj.com:8888/api/"
-        }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
-
-
-    }
+  componentWillMount() {
+    this.onRPCOpen = this.onRPCOpen.bind(this);
+    this.braid = new Proxy({
+      url: "http://projects.koshikraj.com:8888/api/"
+    }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
+  }
 
 
-    onRPCOpen() { console.log('Connected to node.');
-        this.braid.syndService.listLoanRequests(
-            result => {console.log("State details: " + JSON.stringify(result) + "!");
+  onRPCOpen() {
+    console.log('Connected to node');
+    this.braid.syndService.listLoanRequests(
+      result => {
+        console.log("State details: " + JSON.stringify(result) + "!");
+        let dataSource = [];
+        result.map(item => dataSource.push(item.state.data))
+        this.setState({ loanRequests: dataSource });
+      });
+  }
 
-            let dataSource = [];
-            result.map(item => dataSource.push(item.state.data))
-            this.setState({loanRequests:dataSource});
-            });
-    }
+  onRPCClose() { console.log('Disconnected from node'); }
 
-    onRPCClose() { console.log('Disconnected from node.'); }
+  onRPCError(err) { console.error(err); }
 
-    onRPCError(err) { console.error(err); }
-
-
-    showModal = () => {
+  showModal = () => {
     this.setState({
       visible: true
     });
@@ -154,6 +147,7 @@ class BorrowerDashboard extends React.Component {
         </div>
 
         <div>
+        <div className="requests-bar">
           <span
             style={{
               margin: "1em 0em",
@@ -163,7 +157,7 @@ class BorrowerDashboard extends React.Component {
           >
             Live Deals
           </span>
-
+        </div>
           <Table dataSource={[]} columns={columns} />
         </div>
       </div>
