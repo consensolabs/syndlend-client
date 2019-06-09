@@ -36,14 +36,14 @@ class loanRequestForm extends React.Component {
       wrapperCol: { span: 16 },
     };
     const config = {
-        rules: [{ type: 'object', required: true, message: 'Please select date!' }],
+        rules: [{ type: 'object', message: 'Please select date!' }],
       };
     return (
       <Form {...formItemLayout} onSubmit={this.handleSubmit}>
 
             <Form.Item label="Project" hasFeedback>
-                {getFieldDecorator('select', {
-                    rules: [{ required: true, message: 'Please select a project!' }],
+                {getFieldDecorator('project', {
+                    rules: [{ required: true, message: 'Please select Project!' }],
                 })(
                     <Select placeholder="Select a project">
                         <Option value="proa">Project A</Option>
@@ -54,22 +54,22 @@ class loanRequestForm extends React.Component {
             </Form.Item>
 
             <Form.Item label="Amount">
-                {getFieldDecorator('input-number', { initialValue: 3 })(<InputNumber min={1} max={10} />)}
+                {getFieldDecorator('amount', {rules: [{ required: true, message: 'Please provide Amount!' }] })(<InputNumber />)}
                 <span className="ant-form-text"> Dollars </span>
             </Form.Item>
 
             <Form.Item label="Interest Rate Expected">
-                {getFieldDecorator('input-number', { initialValue: 3 })(<InputNumber min={1} max={10} />)}
+                {getFieldDecorator('interest', { initialValue: 13 })(<InputNumber min={1} max={100} />)}
                 <span className="ant-form-text"> % </span>
             </Form.Item>
 
             <Form.Item label="Lock Date (Expected)">
-                {getFieldDecorator('date-picker', config)(<DatePicker />)}
+                {getFieldDecorator('lock-date', config)(<DatePicker />)}
             </Form.Item>
 
             <Form.Item label="Arranger Bank" hasFeedback>
-                {getFieldDecorator('select', {
-                    rules: [{ required: true, message: 'Please select a Bank!' }],
+                {getFieldDecorator('bank', {
+                    rules: [{ required: true, message: 'Please select Bank!' }],
                 })(
                     <Select placeholder="Select a bank">
                         <Option value="bank0">Bank A</Option>
@@ -79,8 +79,8 @@ class loanRequestForm extends React.Component {
             </Form.Item>
 
             <Form.Item label="Collateral" hasFeedback>
-                {getFieldDecorator('select', {
-                    rules: [{ required: true, message: 'Please select a Collateral!' }],
+                {getFieldDecorator('collateral', {
+                    rules: [{ required: true, message: 'Please select Collateral!' }],
                 })(
                     <Select placeholder="Select a collateral">
                         <Option value="cola">Collateral A</Option>

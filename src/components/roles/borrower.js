@@ -1,66 +1,21 @@
 import React from "react";
-import { Modal, Button, Table, Divider } from "antd";
-import LoanReqFormWrapper from "../loanreqform.js";
+import { Modal, Button, Table, Divider, Spin } from "antd";
+import LoanReqFormWrapper from "../loan-request-wrapper.js";
+import StatusFlowDisplayWrapper from "../status-display-wrapper.js";
 import {Proxy} from 'braid-client';
-
-const columns = [
-  {
-    title: "REQ ID",
-    dataIndex: "loanReqID.id",
-    key: "loanReqID "
-  },
-  {
-    title: "Borrower Name",
-    dataIndex: "companyName",
-    key: "companyName"
-  },
-  {
-    title: "Timestamp",
-    dataIndex: "timestamp",
-    key: "timestamp"
-  },
-
-  {
-    title: "Amount",
-    dataIndex: "amount",
-    key: "amount"
-  },
-
-  {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-    render: status => (
-      <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }}>{status.toUpperCase()}</span>
-    )
-  },
-  {
-    title: "Action",
-    dataIndex: "action",
-    key: "action",
-    render: (text, record) => (
-      <span>
-        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }}> {actionList[statusList.indexOf(record.status)]}</span>
-        <Divider type="vertical" />
-        <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
-      </span>
-    )
-  }
-];
-
-const statusList = [ 'open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
-
-const actionList = [ 'verify', 'issue', 'propose', 'lock', 'complete'];
 
 class BorrowerDashboard extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      visible: false,
-      loanRequests: [],
+      showForm: false,
+      showSlider: false,
+      spinning: true,
+      loanRequests: null,
     };
-    this.showModal = this.showModal.bind(this);
+    this.showLoanReqModal = this.showLoanReqModal.bind(this);
+    this.showStatusSliderModal = this.showStatusSliderModal.bind(this);
   }
 
   componentWillMount() {
@@ -70,15 +25,24 @@ class BorrowerDashboard extends React.Component {
     }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
   }
 
-
   onRPCOpen() {
     console.log('Connected to node');
-    this.braid.syndService.listLoanRequests(
-      result => {
-        console.log("State details: " + JSON.stringify(result) + "!");
-        let dataSource = [];
-        result.map(item => dataSource.push(item.state.data))
+    // this.setState({ spinning: true });
+    this.braid.syndService.listLoanRequests()
+      .then(responseJson => {
+        this.setState({ spinning: false });
+        const dataSource = responseJson.map(item => ({
+          key: item.state.data.loanReqID.id,
+          loanReqID: item.state.data.loanReqID.id,
+          companyName: item.state.data.companyName,
+          timestamp: item.state.data.timestamp,
+          amount: item.state.data.amount,
+          status: item.state.data.status
+        }))
         this.setState({ loanRequests: dataSource });
+      })
+      .catch(error => {
+        console.error(error);
       });
   }
 
@@ -86,27 +50,87 @@ class BorrowerDashboard extends React.Component {
 
   onRPCError(err) { console.error(err); }
 
-  showModal = () => {
+  showLoanReqModal = () => {
     this.setState({
-      visible: true
+      showForm: true
+    });
+  };
+
+  showStatusSliderModal = () => {
+    this.setState({
+      showSlider: true
     });
   };
 
   handleOk = e => {
-    console.log(e);
     this.setState({
-      visible: false
+      showForm: false,
+      showSlider: false
     });
   };
 
   handleCancel = e => {
-    console.log(e);
     this.setState({
-      visible: false
+      showForm: false,
+      showSlider: false
     });
   };
 
+  showStatusFlow = (id) => {
+    this.braid.syndService.listLoanRequestDetails(id)
+    .then(responseJson => {
+      console.log("Status Flow:",responseJson)
+      this.showStatusSliderModal();
+    })
+  }
+
   render() {
+    const statusList = [ 'open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
+    const actionList = [ 'verify', 'issue', 'propose', 'lock', 'complete'];
+    const columns = [
+      {
+        title: "REQ ID",
+        dataIndex: "loanReqID",
+        key: "loanReqID "
+      },
+      {
+        title: "Borrower Name",
+        dataIndex: "companyName",
+        key: "companyName"
+      },
+      {
+        title: "Timestamp",
+        dataIndex: "timestamp",
+        key: "timestamp"
+      },
+    
+      {
+        title: "Amount",
+        dataIndex: "amount",
+        key: "amount"
+      },
+    
+      {
+        title: "Status",
+        dataIndex: "status",
+        key: "status",
+        render: (status, record) => (
+          <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }} onClick={()=>{ this.showStatusFlow(record.loanReqID)}}>{status.toUpperCase()}</span>
+        )
+      },
+      {
+        title: "Action",
+        dataIndex: "action",
+        key: "action",
+        render: (text, record) => (
+          <span>
+            <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }}> {actionList[statusList.indexOf(record.status.toLowerCase())]}</span>
+            <Divider type="vertical" />
+            <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
+          </span>
+        )
+      }
+    ];
     return (
       <div>
         <h2> Dashboard </h2>
@@ -127,14 +151,14 @@ class BorrowerDashboard extends React.Component {
               type="primary"
               icon="plus"
               style={{ float: "right" }}
-              onClick={this.showModal}
+              onClick={this.showLoanReqModal}
             >
               ADD REQUEST
             </Button>
 
             <Modal
               title="Create a Loan Request"
-              visible={this.state.visible}
+              visible={this.state.showForm}
               onOk={this.handleOk}
               footer={null}
               onCancel={this.handleCancel}
@@ -143,7 +167,21 @@ class BorrowerDashboard extends React.Component {
 
             </Modal>
           </div>
-          <Table dataSource={this.state.loanRequests} columns={columns} />
+          
+          <Spin size="large" spinning={this.state.spinning}>
+            <Table dataSource={this.state.loanRequests} columns={columns} />
+          </Spin>
+
+          <Modal
+              title="Status Timeline"
+              visible={this.state.showSlider}
+              onOk={this.handleOk}
+              footer={null}
+              onCancel={this.handleCancel}
+            >
+              <StatusFlowDisplayWrapper />
+
+            </Modal>
         </div>
 
         <div>
