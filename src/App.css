@@ -37,3 +37,8 @@
 .ant-table {
   line-height: 1.0;
 }
+
+.main-menu {
+  height: "100%";
+  border-right: 0;
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Button, Table, Divider, Spin } from "antd";
-import LoanReqFormWrapper from "../loan-request-wrapper.js";
-import StatusFlowDisplayWrapper from "../status-display-wrapper.js";
+import LoanReqFormWrapper from "./loan-request-wrapper.js";
+import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
 import {Proxy} from 'braid-client';
 
 class BorrowerDashboard extends React.Component {
@@ -21,13 +21,12 @@ class BorrowerDashboard extends React.Component {
   componentWillMount() {
     this.onRPCOpen = this.onRPCOpen.bind(this);
     this.braid = new Proxy({
-      url: "http://projects.koshikraj.com:8888/api/"
+      url: "http://localhost:8888/api/"
     }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
   }
 
   onRPCOpen() {
     console.log('Connected to node');
-    // this.setState({ spinning: true });
     this.braid.syndService.listLoanRequests()
       .then(responseJson => {
         this.setState({ spinning: false });
