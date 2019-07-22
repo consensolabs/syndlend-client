@@ -69,10 +69,35 @@ app.post('/service/loan/issue', urlencodedParser,  (req, res) => {
 
     braid.syndService.issueLoan(
         req.body.borrower,
-        req.body.owner,
-        req.body.amount,
         req.body.loanreq_id,
         result => res.send("Transaction ID: " + result + "!"),
+        err => res.status(500).send(err));
+});
+
+
+
+app.post('/service/propose/request', urlencodedParser,  (req, res) => {
+
+    braid.syndService.createLendRequest(
+        req.body.loan_id,
+        req.body.amount,
+        result => res.send("Transaction ID: " + result + "!"),
+        err => res.status(500).send(err));
+});
+
+app.post('/service/propose/response', urlencodedParser,  (req, res) => {
+
+    braid.syndService.createLendResponse (
+        req.body.proposal_id,
+        result => res.send("Transaction ID: " + result + "!"),
+        err => res.status(500).send(err));
+});
+
+
+app.get('/service/propose/request', urlencodedParser,  (req, res) => {
+
+    braid.syndService.listLendProposals(
+        result => res.send("Proposals: " + JSON.stringify(result)),
         err => res.status(500).send(err));
 });
 
@@ -80,9 +105,7 @@ app.post('/service/loan/issue', urlencodedParser,  (req, res) => {
 app.post('/service/loan/syndicate', urlencodedParser,  (req, res) => {
 
     braid.syndService.syndicateLoan(
-        req.body.new_owner,
-        req.body.amount,
-        req.body.loan_id,
+        req.body.proposal_id,
         result => res.send("Transaction ID: " + result + "!"),
         err => res.status(500).send(err));
 });
@@ -94,5 +117,37 @@ app.get('/service/loan/issued', (req, res) => {
         result => res.send("State details: " + JSON.stringify(result) + "!"),
         err => res.status(500).send(err));
 });
+
+
+app.get('/service/cash/balance/:currency', (req, res) => {
+
+    braid.syndService.getCashBalance(
+        req.params.currency,
+
+        result => res.send(result),
+        err => res.status(500).send(err));
+});
+
+
+
+app.post('/service/cash/issue', urlencodedParser,  (req, res) => {
+
+    braid.syndService.selfIssueCash(
+        req.body.amount,
+        req.body.currency,
+        result => res.send("Transaction ID: " + result + "!"),
+        err => res.status(500).send(err));
+});
+
+app.post('/service/loan/disburse', urlencodedParser,  (req, res) => {
+
+    braid.syndService.disburseLoan(
+        req.body.loanid,
+        result => res.send("Transaction ID: " + result + "!"),
+        err => res.status(500).send(err));
+});
+
+
+
 
 app.listen(3001, () => console.log('Server listening on port 3001!'))

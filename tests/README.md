@@ -34,7 +34,7 @@ Replace `loanid` with the actual loan ID
 
 ```
 
-
+#### Invoker: Borrower Party
 ### Create a new loan request [POST]:
 
 ```
@@ -42,6 +42,7 @@ Replace `loanid` with the actual loan ID
 
 ```
 
+#### Invoker: Verifier Party (Manual trigger for now)
 ### Verify a loan request [POST]:
 
 ```
@@ -49,13 +50,14 @@ Replace `loanid` with the actual loan ID
 
 ```
 
+#### Invoker: Agent Party
 ### Issue a new loan loan [POST]:
 
 ```
 /service/loan/issue
 
 ```
-
+#### Invoker: Agent/ Lender Party
 ### List all the issue loans [GET]:
 
 ```
@@ -63,6 +65,30 @@ Replace `loanid` with the actual loan ID
 
 ```
 
+#### Invoker: Lender Party
+### Propose a lend request [POST]:
+
+```
+service/propose/request
+
+```
+
+#### Invoker: Agent/ Borrower Party
+### List proposal [GET]:
+
+```
+/service/propose/request
+```
+
+#### Invoker: Agent Party
+### Propose a lend response[POST]:
+
+```
+service/propose/response
+
+```
+
+#### Invoker: Agent Party
 ### Syndicate the loan [POST]:
 
 ```
