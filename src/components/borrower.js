@@ -2,7 +2,8 @@ import React from "react";
 import { Modal, Button, Table, Divider, Spin } from "antd";
 import LoanReqFormWrapper from "./loan-request-wrapper.js";
 import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
-import {Proxy} from 'braid-client';
+import { loansService } from '../services';
+// import {Proxy} from 'braid-client';
 
 class BorrowerDashboard extends React.Component {
 
@@ -12,42 +13,51 @@ class BorrowerDashboard extends React.Component {
       showForm: false,
       showSlider: false,
       spinning: true,
-      loanRequests: null,
+      requestedLoans: [],
     };
     this.showLoanReqModal = this.showLoanReqModal.bind(this);
     this.showStatusSliderModal = this.showStatusSliderModal.bind(this);
   }
 
-  componentWillMount() {
-    this.onRPCOpen = this.onRPCOpen.bind(this);
-    this.braid = new Proxy({
-      url: "http://localhost:8888/api/"
-    }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
+  componentDidMount() {
+    // this.onRPCOpen = this.onRPCOpen.bind(this);
+    // this.braid = new Proxy({
+    //   url: "http://localhost:8888/api/"
+    // }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
+    loansService.fetchRequestedLoans()
+      .then(
+        requestedLoans => {
+          this.setState({ requestedLoans : requestedLoans, spinning : false });
+        },
+        error => {
+          console.log("Error while fetching Requested Loans:", error);
+        }
+      );
   }
 
-  onRPCOpen() {
-    console.log('Connected to node');
-    this.braid.syndService.listLoanRequests()
-      .then(responseJson => {
-        this.setState({ spinning: false });
-        const dataSource = responseJson.map(item => ({
-          key: item.state.data.loanReqID.id,
-          loanReqID: item.state.data.loanReqID.id,
-          companyName: item.state.data.companyName,
-          timestamp: item.state.data.timestamp,
-          amount: item.state.data.amount,
-          status: item.state.data.status
-        }))
-        this.setState({ loanRequests: dataSource });
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }
+  // onRPCOpen() {
+  //   console.log('Connected to node');
+  //   this.braid.syndService.listLoanRequests()
+  //     .then(responseJson => {
+  //       this.setState({ spinning: false });
+  //       const dataSource = responseJson.map(item => ({
+  //         key: item.state.data.loanReqID.id,
+  //         loanReqID: item.state.data.loanReqID.id,
+  //         companyName: item.state.data.companyName,
+  //         timestamp: item.state.data.timestamp,
+  //         amount: item.state.data.amount,
+  //         status: item.state.data.status
+  //       }))
+  //       this.setState({ loanRequests: dataSource });
+  //     })
+  //     .catch(error => {
+  //       console.error(error);
+  //     });
+  // }
 
-  onRPCClose() { console.log('Disconnected from node'); }
+  // onRPCClose() { console.log('Disconnected from node'); }
 
-  onRPCError(err) { console.error(err); }
+  // onRPCError(err) { console.error(err); }
 
   showLoanReqModal = () => {
     this.setState({
@@ -168,7 +178,7 @@ class BorrowerDashboard extends React.Component {
           </div>
           
           <Spin size="large" spinning={this.state.spinning}>
-            <Table dataSource={this.state.loanRequests} columns={columns} />
+            <Table dataSource={this.state.requestedLoans} columns={columns} />
           </Spin>
 
           <Modal
