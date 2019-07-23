@@ -2,7 +2,7 @@ import React from "react";
 import { Modal, Button, Table, Divider, Spin } from "antd";
 import LoanReqFormWrapper from "./loan-request-wrapper.js";
 import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
-import { loansService } from '../services';
+import { LoanService } from '../services';
 // import {Proxy} from 'braid-client';
 
 class BorrowerDashboard extends React.Component {
@@ -19,12 +19,23 @@ class BorrowerDashboard extends React.Component {
     this.showStatusSliderModal = this.showStatusSliderModal.bind(this);
   }
 
-  componentDidMount() {
+   sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+  async componentDidMount() {
     // this.onRPCOpen = this.onRPCOpen.bind(this);
     // this.braid = new Proxy({
     //   url: "http://localhost:8888/api/"
     // }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
-    loansService.fetchRequestedLoans()
+
+      let loanService = new LoanService();
+      while(!loanService.connected) {
+        console.log(loanService.connected);
+          await this.sleep(500);
+      }
+
+
+      loanService.fetchRequestedLoans()
       .then(
         requestedLoans => {
           this.setState({ requestedLoans : requestedLoans, spinning : false });
@@ -112,13 +123,13 @@ class BorrowerDashboard extends React.Component {
         dataIndex: "timestamp",
         key: "timestamp"
       },
-    
+
       {
         title: "Amount",
         dataIndex: "amount",
         key: "amount"
       },
-    
+
       {
         title: "Status",
         dataIndex: "status",
@@ -176,7 +187,7 @@ class BorrowerDashboard extends React.Component {
 
             </Modal>
           </div>
-          
+
           <Spin size="large" spinning={this.state.spinning}>
             <Table dataSource={this.state.requestedLoans} columns={columns} />
           </Spin>
