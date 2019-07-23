@@ -68,7 +68,7 @@ app.post('/service/loan/verify', urlencodedParser,  (req, res) => {
 app.post('/service/loan/issue', urlencodedParser,  (req, res) => {
 
     braid.syndService.issueLoan(
-        req.body.borrower,
+        req.body.lender,
         req.body.loanreq_id,
         result => res.send("Transaction ID: " + result + "!"),
         err => res.status(500).send(err));
