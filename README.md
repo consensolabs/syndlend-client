@@ -1,5 +1,5 @@
 # The Loan syndication client web application
-The web app will communicate with the CorDapp built using [https://github.com/koshikraj/loan-syndication](https://github.com/koshikraj/loan-syndication). It is a private project for now. You can use the [this](http://projects.koshikraj.com:8888/api/) RPC end point to run this project.
+The web app will communicate with the CorDapp built using [https://github.com/koshikraj/loan-syndication](https://github.com/koshikraj/loan-syndication). It is a private project for now. You can use the [this](http://projects.koshikraj.com:8888/api/) RPC end point or downloan and run the corda nodes locally from [this](http://jenkins.consensolabs.com:8080/job/deploy-syndlend-corda-nodes/) Jenkins artifacts.
 
 
 ## Quick Start
