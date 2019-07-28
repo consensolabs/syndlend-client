@@ -1,5 +1,5 @@
-
 import React from 'react';
+import { connect } from 'react-redux';
 import 'antd/dist/antd.css';
 import {
   Form,
@@ -8,15 +8,33 @@ import {
   DatePicker,
   Button,
 } from 'antd';
+import { LoanService } from '../services';
 
 const { Option } = Select;
 
+const loanService = new LoanService();
+
 class loanRequestForm extends React.Component {
+
+  constructor(props) {
+    super(props);
+  }
+
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
+
+        loanService.createLoanRequest(this.props.braidConnect,values.bank,values.amount,"Consenso Labs")
+          .then(
+            response => {
+              console.log("response:",response)
+            },
+            error => {
+              console.log("Error while creating Loan Request:", error);
+            }
+          );
       }
     });
   };
@@ -72,8 +90,8 @@ class loanRequestForm extends React.Component {
                     rules: [{ required: true, message: 'Please select Bank!' }],
                 })(
                     <Select placeholder="Select a bank">
-                        <Option value="bank0">Bank A</Option>
-                        <Option value="bank1">Bank B</Option>
+                        <Option value="O=Agent Bank,L=Mumbai,C=IN">Bank A</Option>
+                        <Option value="O=Agent Bank,L=Bangalore,C=IN">Bank B</Option>
                     </Select>,
                 )}
             </Form.Item>
@@ -102,4 +120,18 @@ class loanRequestForm extends React.Component {
 
 const LoanReqFormWrapper = Form.create({ name: 'validate_other' })(loanRequestForm);
 
-export default LoanReqFormWrapper;
+const mapStateToProps = state => {
+  return {
+    braidConnect: state.braidConnect
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LoanReqFormWrapper);

@@ -1,8 +1,12 @@
 import { combineReducers } from 'redux';
-import loanRequests from './loan-requests';
 import activeRoleId from './common';
+import braidConnect from './braidConnect';
+import braidStatus from './braidStatus';
+import loanRequests from './loan-requests';
 
 export default combineReducers({
-    loanRequests: loanRequests,
-    activeRoleId: activeRoleId
+    activeRoleId: activeRoleId,
+    braidConnect: braidConnect,
+    braidStatus: braidStatus,
+    loanRequests: loanRequests
 });

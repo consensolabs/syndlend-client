@@ -1,25 +1,35 @@
-import { GET_ACTIVE_ROLE, FETCH_LOAN_REQUESTS, SET_ACTIVE_ROLE } from './types';
+import { GET_ACTIVE_ROLE, SET_ACTIVE_ROLE, FETCH_LOAN_REQUESTS, RPC_CONNECT, RPC_STATUS } from './types';
 import { Proxy } from 'braid-client';
 
 const onRPCOpen = () => {
-    console.log('Connected to node');
+    console.log("CONNECTED")
+    return {
+        type: RPC_STATUS,
+        braidStatus: true
+    }
 }
 
 const onRPCClose = () => { console.log('Disconnected from node'); }
 
 const onRPCError = (err) => { console.error(err); }
 
-const braidConnect = new Proxy({url: 'http://localhost:8888/api/'}, onRPCOpen, onRPCClose, onRPCError, {strictSSL: false})
+export const braidConnect = () => {
+    let braidConnect = new Proxy({url: 'http://localhost:8888/api/'}, onRPCOpen, onRPCClose, onRPCError, {strictSSL: false})
+    console.log("braidConnect:",braidConnect)
+    return {
+        type: RPC_CONNECT,
+        braidConnect
+    }
+}
 
 export const fetchLoanRequests = (loanRequests) => {
-    console.log("loanRequests:",loanRequests)
     return {
       type: FETCH_LOAN_REQUESTS,
       loanRequests
     }
 };
 
-export const fetchAllLoanRequests = () => {
+export const fetchAllLoanRequests = (braidConnect) => {
     return (dispatch) => {
         return braidConnect.syndService.listLoanRequests()
             .then(response => {

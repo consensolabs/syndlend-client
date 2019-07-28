@@ -6,12 +6,13 @@ import { Provider } from 'react-redux';
 import './index.css';
 import App from './App';
 import rootReducer from './reducers';
-import { getActiveRole } from './actions/index';
+import { getActiveRole, braidConnect } from './actions/index';
 import * as serviceWorker from './serviceWorker';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 store.dispatch(getActiveRole());
+store.dispatch(braidConnect());
 
 ReactDOM.render(
     <Provider store={store}>

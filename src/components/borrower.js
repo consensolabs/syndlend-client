@@ -1,9 +1,10 @@
 import React from "react";
+import { connect } from 'react-redux';
 import { Modal, Button, Table, Divider, Spin } from "antd";
 import LoanReqFormWrapper from "./loan-request-wrapper.js";
 import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
-import { LoanService } from '../services';
-// import {Proxy} from 'braid-client';
+import { fetchAllLoanRequests } from '../actions';
+import {LoanService} from '../services';
 
 class BorrowerDashboard extends React.Component {
 
@@ -19,56 +20,25 @@ class BorrowerDashboard extends React.Component {
     this.showStatusSliderModal = this.showStatusSliderModal.bind(this);
   }
 
-   sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   async componentDidMount() {
-    // this.onRPCOpen = this.onRPCOpen.bind(this);
-    // this.braid = new Proxy({
-    //   url: "http://localhost:8888/api/"
-    // }, this.onRPCOpen, this.onRPCClose, this.onRPCError, { strictSSL: false });
-
-      let loanService = new LoanService();
-      while(!loanService.connected) {
-        console.log(loanService.connected);
-          await this.sleep(500);
-      }
-
-
-      loanService.fetchRequestedLoans()
+    console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect)
+    await this.sleep(1000);
+    // this.props.fetchAllLoanRequests(this.props.braidConnect);
+    let loanService = new LoanService();
+    loanService.fetchRequestedLoans(this.props.braidConnect)
       .then(
         requestedLoans => {
-          this.setState({ requestedLoans : requestedLoans, spinning : false });
+          this.setState({requestedLoans:requestedLoans, spinning:false});
         },
         error => {
-          console.log("Error while fetching Requested Loans:", error);
+          console.log("Error while fetching loans:", error);
         }
       );
   }
-
-  // onRPCOpen() {
-  //   console.log('Connected to node');
-  //   this.braid.syndService.listLoanRequests()
-  //     .then(responseJson => {
-  //       this.setState({ spinning: false });
-  //       const dataSource = responseJson.map(item => ({
-  //         key: item.state.data.loanReqID.id,
-  //         loanReqID: item.state.data.loanReqID.id,
-  //         companyName: item.state.data.companyName,
-  //         timestamp: item.state.data.timestamp,
-  //         amount: item.state.data.amount,
-  //         status: item.state.data.status
-  //       }))
-  //       this.setState({ loanRequests: dataSource });
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //     });
-  // }
-
-  // onRPCClose() { console.log('Disconnected from node'); }
-
-  // onRPCError(err) { console.error(err); }
 
   showLoanReqModal = () => {
     this.setState({
@@ -98,15 +68,15 @@ class BorrowerDashboard extends React.Component {
 
   showStatusFlow = (id) => {
     this.braid.syndService.listLoanRequestDetails(id)
-    .then(responseJson => {
-      console.log("Status Flow:",responseJson)
-      this.showStatusSliderModal();
-    })
+      .then(responseJson => {
+        console.log("Status Flow:", responseJson)
+        this.showStatusSliderModal();
+      })
   }
 
   render() {
-    const statusList = [ 'open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
-    const actionList = [ 'verify', 'issue', 'propose', 'lock', 'complete'];
+    const statusList = ['open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
+    const actionList = ['verify', 'issue', 'propose', 'lock', 'complete'];
     const columns = [
       {
         title: "REQ ID",
@@ -135,7 +105,7 @@ class BorrowerDashboard extends React.Component {
         dataIndex: "status",
         key: "status",
         render: (status, record) => (
-          <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }} onClick={()=>{ this.showStatusFlow(record.loanReqID)}}>{status.toUpperCase()}</span>
+          <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }} onClick={() => { this.showStatusFlow(record.loanReqID) }}>{status.toUpperCase()}</span>
         )
       },
       {
@@ -193,29 +163,29 @@ class BorrowerDashboard extends React.Component {
           </Spin>
 
           <Modal
-              title="Status Timeline"
-              visible={this.state.showSlider}
-              onOk={this.handleOk}
-              footer={null}
-              onCancel={this.handleCancel}
-            >
-              <StatusFlowDisplayWrapper />
+            title="Status Timeline"
+            visible={this.state.showSlider}
+            onOk={this.handleOk}
+            footer={null}
+            onCancel={this.handleCancel}
+          >
+            <StatusFlowDisplayWrapper />
 
-            </Modal>
+          </Modal>
         </div>
 
         <div>
-        <div className="requests-bar">
-          <span
-            style={{
-              margin: "1em 0em",
-              fontSize: "1.17em",
-              fontWeight: 500
-            }}
-          >
-            Live Deals
+          <div className="requests-bar">
+            <span
+              style={{
+                margin: "1em 0em",
+                fontSize: "1.17em",
+                fontWeight: 500
+              }}
+            >
+              Live Deals
           </span>
-        </div>
+          </div>
           <Table dataSource={[]} columns={columns} />
         </div>
       </div>
@@ -223,4 +193,23 @@ class BorrowerDashboard extends React.Component {
   }
 }
 
-export default BorrowerDashboard;
+const mapStateToProps = state => {
+  return {
+    braidConnect: state.braidConnect,
+    braidStatus: state.braidStatus,
+    loanRequests: state.loanRequests
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchAllLoanRequests: (braidConnect) => {
+      dispatch(fetchAllLoanRequests(braidConnect));
+    }
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BorrowerDashboard);
