@@ -14,7 +14,7 @@ export class LoanService {
                 throw (error);
             });
         return promiseFunction;
-    }
+    };
 
     fetchRequestedLoans(braidConnect) {
         let promiseFunction = braidConnect.syndService.listLoanRequests()
@@ -50,6 +50,21 @@ export class LoanService {
                 }))
                 console.log("fetchIssuedLoans-Response:", dataSource)
                 return dataSource;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+    updateLoanStatus(braidConnect, id, status) {
+        let promiseFunction = braidConnect.syndService.issueLoan(
+            'O=Agent Bank,L=Mumbai,C=IN',
+            id
+        )
+            .then(response => {
+                console.log("updateLoanStatus-Response:", response)
+                return response;
             })
             .catch(error => {
                 throw (error);

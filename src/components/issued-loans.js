@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from 'react-redux';
-import { Table, Divider } from "antd";
+import { Table, Divider, Spin } from "antd";
 import { LoanService } from '../services';
 
 const loanService = new LoanService();
@@ -10,6 +10,7 @@ class IssuedLoans extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            spinning: true,
             issuedLoans: []
         };
     }
@@ -28,7 +29,7 @@ class IssuedLoans extends React.Component {
         loanService.fetchIssuedLoans(this.props.braidConnect)
             .then(
                 issuedLoans => {
-                    this.setState({ issuedLoans: issuedLoans });
+                    this.setState({ issuedLoans: issuedLoans, spinning: false });
                 },
                 error => {
                     console.log("Error while fetching loans:", error);
@@ -96,7 +97,12 @@ class IssuedLoans extends React.Component {
                         Issued Loans
                     </span>
                 </div>
-                <Table dataSource={this.state.issuedLoans} columns={issuedLoanColumns} />
+                <Spin size="large" spinning={this.state.spinning}>
+                    <Table
+                        dataSource={this.state.issuedLoans}
+                        columns={issuedLoanColumns}
+                        pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '30'] }} />
+                </Spin>
             </React.Fragment>
         );
     }

@@ -7,6 +7,8 @@ import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
 
 const loanService = new LoanService();
 
+const confirm = Modal.confirm;
+
 class RequestedLoans extends React.Component {
 
     constructor(props) {
@@ -77,6 +79,28 @@ class RequestedLoans extends React.Component {
                 this.showStatusSliderModal();
             })
     }
+
+    updateLoanStatus = (id, status) => {
+        console.log("ID, Status:", id, status, this.props.braidConnect)
+        const rpc = this.props.braidConnect;
+        confirm({
+            title: `Do you want to ${status} against Request ID: ${id}?`,
+            okText: 'Confirm',
+            onOk() {
+                loanService.updateLoanStatus(rpc, id, status)
+                .then(
+                    response => {
+                        this.fetchRequestedLoans();
+                    },
+                    error => {
+                        console.log("Error while fetching loans:", error);
+                    }
+                );
+            },
+            onCancel() { },
+        });
+    }
+
     render() {
         const statusList = ['open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
         const actionList = ['verify', 'issue', 'propose', 'lock', 'complete'];
@@ -117,7 +141,9 @@ class RequestedLoans extends React.Component {
                 key: "action",
                 render: (text, record) => (
                     <span>
-                        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }}> {actionList[statusList.indexOf(record.status.toLowerCase())]}</span>
+                        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }} onClick={() => { this.updateLoanStatus(record.loanReqID, actionList[statusList.indexOf(record.status.toLowerCase())]) }}>
+                            {actionList[statusList.indexOf(record.status.toLowerCase())]}
+                        </span>
                         <Divider type="vertical" />
                         <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
                     </span>
