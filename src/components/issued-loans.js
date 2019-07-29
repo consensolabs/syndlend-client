@@ -1,0 +1,119 @@
+import React from "react";
+import { connect } from 'react-redux';
+import { Table, Divider } from "antd";
+import { LoanService } from '../services';
+
+const loanService = new LoanService();
+
+class IssuedLoans extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            issuedLoans: []
+        };
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async componentDidMount() {
+        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect)
+        await this.sleep(1000);
+        this.fetchIssuedLoans();
+    }
+
+    fetchIssuedLoans() {
+        loanService.fetchIssuedLoans(this.props.braidConnect)
+            .then(
+                issuedLoans => {
+                    this.setState({ issuedLoans: issuedLoans });
+                },
+                error => {
+                    console.log("Error while fetching loans:", error);
+                }
+            );
+    }
+
+    render() {
+        const statusList = ['open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
+        const actionList = ['verify', 'issue', 'propose', 'lock', 'complete'];
+        const issuedLoanColumns = [
+            {
+                title: "REQ ID",
+                dataIndex: "loanReqID",
+                key: "loanReqID "
+            },
+            {
+                title: "Borrower Name",
+                dataIndex: "companyName",
+                key: "companyName"
+            },
+            {
+                title: "Timestamp",
+                dataIndex: "timestamp",
+                key: "timestamp"
+            },
+
+            {
+                title: "Amount",
+                dataIndex: "amount",
+                key: "amount"
+            },
+
+            {
+                title: "Status",
+                dataIndex: "status",
+                key: "status",
+                render: (status, record) => (
+                    <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }} onClick={() => { this.showStatusFlow(record.loanReqID) }}>{status.toUpperCase()}</span>
+                )
+            },
+            {
+                title: "Action",
+                dataIndex: "action",
+                key: "action",
+                render: (text, record) => (
+                    <span>
+                        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }}> {actionList[statusList.indexOf(record.status.toLowerCase())]}</span>
+                        <Divider type="vertical" />
+                        <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
+                    </span>
+                )
+            }
+        ];
+
+        return (
+            <React.Fragment>
+                <div className="requests-bar">
+                    <span
+                        style={{
+                            margin: "1em 0em",
+                            fontSize: "1.17em",
+                            fontWeight: 500
+                        }} >
+                        Issued Loans
+                    </span>
+                </div>
+                <Table dataSource={this.state.issuedLoans} columns={issuedLoanColumns} />
+            </React.Fragment>
+        );
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        braidConnect: state.braidConnect,
+        braidStatus: state.braidStatus
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {};
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(IssuedLoans);

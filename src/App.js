@@ -1,16 +1,12 @@
 import React from "react";
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-
 import { Layout } from "antd";
-
-import Dashboard from './containers/dashboard.js';
-import Menubar from './containers/menubar.js';
-
+import Dashboard from './components/dashboard.js';
+import Menubar from './components/menubar.js';
 import Profile from './components/profile.js';
 import Transactions from './components/transactions.js';
 import SideMenuBar from "./components/side-menubar.js";
-import Error from './components/error.js';
-
+import PageNotFoundError from './components/404.js';
 import "antd/dist/antd.css";
 import "./App.css";
 
@@ -36,7 +32,7 @@ class App extends React.Component {
                   <Route path="/" component={Dashboard} exact />
                   <Route path="/transactions" component={Transactions} />
                   <Route path="/profile" component={Profile} />
-                  <Route component={Error} />
+                  <Route component={PageNotFoundError} />
                 </Switch>
             </Content>
           </Layout>

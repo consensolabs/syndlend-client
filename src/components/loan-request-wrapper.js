@@ -30,6 +30,8 @@ class loanRequestForm extends React.Component {
           .then(
             response => {
               console.log("response:",response)
+              this.props.form.resetFields();
+              this.props.handleOk();
             },
             error => {
               console.log("Error while creating Loan Request:", error);
@@ -37,14 +39,6 @@ class loanRequestForm extends React.Component {
           );
       }
     });
-  };
-
-  normFile = e => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
   };
 
   render() {
@@ -108,7 +102,10 @@ class loanRequestForm extends React.Component {
                 <Button type="link" style={{float:'right',fontWeight:'500'}}>+ ADD NEW COLLATERAL</Button>
             </Form.Item>
 
-            <Form.Item wrapperCol={{ span: 8, offset: 16 }}>
+            <Form.Item wrapperCol={{ span: 12, offset: 12 }}>
+                <Button type="secondary" onClick={e => { this.props.form.resetFields() }} style={{marginRight:'15px'}}>
+                    CLEAR
+                </Button>
                 <Button type="primary" htmlType="submit">
                     SUBMIT REQUEST
                 </Button>
