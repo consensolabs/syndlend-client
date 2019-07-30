@@ -28,8 +28,14 @@ class RequestedLoans extends React.Component {
     }
 
     async componentDidMount() {
-        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect)
-        await this.sleep(1000);
+        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
+        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
+        while (!this.props.braidConnect.syndService) {
+            console.log("waiting for connection: sleeping for 500 ms")
+            await this.sleep(1200);
+        }
+
+        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
         this.fetchRequestedLoans();
     }
 
@@ -163,9 +169,9 @@ class RequestedLoans extends React.Component {
                     >
                         Requested Loans
                     </span>
-                    
+
                     <Button type="primary" onClick={e => { this.setState({ spinning: true }); this.fetchRequestedLoans() }} shape="circle" icon="reload" size={'large'} style={{ float: "right", marginLeft: '15px' }} />
-                    
+
                     <Button
                         type="primary"
                         icon="plus"
@@ -180,7 +186,7 @@ class RequestedLoans extends React.Component {
                         onOk={this.handleOk}
                         footer={null}
                         onCancel={this.handleCancel} >
-                        
+
                         <LoanReqFormWrapper handleOk={this.handleOk} />
 
                     </Modal>
@@ -199,7 +205,7 @@ class RequestedLoans extends React.Component {
                     onOk={this.handleOk}
                     footer={null}
                     onCancel={this.handleCancel} >
-                    
+
                     <StatusFlowDisplayWrapper />
 
                 </Modal>

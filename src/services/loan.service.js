@@ -43,10 +43,10 @@ export class LoanService {
                 const dataSource = response.map(item => ({
                     key: item.state.data.loanReqID.id,
                     loanReqID: item.state.data.loanReqID.id,
-                    companyName: item.state.data.companyName,
-                    timestamp: item.state.data.timestamp,
+                    borrowerNode: item.state.data.borrowerNode.name,
+                    loanId: item.state.data.loanId.id,
                     amount: item.state.data.amount,
-                    status: item.state.data.status
+
                 }))
                 console.log("fetchIssuedLoans-Response:", dataSource)
                 return dataSource;

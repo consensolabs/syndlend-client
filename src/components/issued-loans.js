@@ -47,14 +47,9 @@ class IssuedLoans extends React.Component {
                 key: "loanReqID "
             },
             {
-                title: "Borrower Name",
-                dataIndex: "companyName",
-                key: "companyName"
-            },
-            {
-                title: "Timestamp",
-                dataIndex: "timestamp",
-                key: "timestamp"
+                title: "Borrower Node",
+                dataIndex: "borrowerNode",
+                key: "borrowerNode"
             },
 
             {
@@ -64,24 +59,24 @@ class IssuedLoans extends React.Component {
             },
 
             {
-                title: "Status",
-                dataIndex: "status",
-                key: "status",
-                render: (status, record) => (
-                    <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }} onClick={() => { this.showStatusFlow(record.loanReqID) }}>{status.toUpperCase()}</span>
-                )
+                title: "LOAN ID",
+                dataIndex: "loanId",
+                key: "loanId",
+                // render: (status, record) => (
+                //     <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }} onClick={() => { this.showStatusFlow(record.loanReqID) }}>{status.toUpperCase()}</span>
+                // )
             },
             {
                 title: "Action",
                 dataIndex: "action",
                 key: "action",
-                render: (text, record) => (
-                    <span>
-                        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }}> {actionList[statusList.indexOf(record.status.toLowerCase())]}</span>
-                        <Divider type="vertical" />
-                        <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
-                    </span>
-                )
+                // render: (text, record) => (
+                //     <span>
+                //         <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }}> {actionList[statusList.indexOf(record.status.toLowerCase())]}</span>
+                //         <Divider type="vertical" />
+                //         <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
+                //     </span>
+                // )
             }
         ];
 
