@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from 'react-redux';
-import { Modal, Button, Table, Divider, Spin } from "antd";
+import { Modal, Button, Table, Divider, Spin, Tag } from "antd";
 import { LoanService } from '../services';
 import LoanReqFormWrapper from "./loan-request-wrapper.js";
 import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
@@ -109,7 +109,7 @@ class RequestedLoans extends React.Component {
 
     render() {
         const statusList = ['open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
-        const actionList = ['verify', 'issue', 'propose', 'lock', 'complete'];
+        const actionList = ['verify', 'issue'];
         const requestedLoanColumns = [
             {
                 title: "REQ ID",
@@ -138,7 +138,13 @@ class RequestedLoans extends React.Component {
                 dataIndex: "status",
                 key: "status",
                 render: (status, record) => (
-                    <span style={{ color: '#008b7d', fontWeight: '500', cursor: 'pointer' }} onClick={() => { this.showStatusFlow(record.loanReqID) }}>{status.toUpperCase()}</span>
+                    <span  onClick={() => { this.showStatusFlow(record.loanReqID) }}>
+                        <Tag style={{fontWeight: '500', cursor: 'pointer' }} color={"blue"}>
+                  {status.toUpperCase()}
+                    </Tag>
+
+
+                    </span>
                 )
             },
             {
@@ -146,13 +152,21 @@ class RequestedLoans extends React.Component {
                 dataIndex: "action",
                 key: "action",
                 render: (text, record) => (
+                    statusList.indexOf(record.status.toLowerCase()) < 2 ?
                     <span>
-                        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }} onClick={() => { this.updateLoanStatus(record.loanReqID, actionList[statusList.indexOf(record.status.toLowerCase())]) }}>
+                        <Button icon={"check-circle"} onClick={() => { this.updateLoanStatus(record.loanReqID, actionList[statusList.indexOf(record.status.toLowerCase())]) }}>
+                        <span style={{ color: 'green', cursor: 'pointer', textTransform: 'capitalize' }} >
                             {actionList[statusList.indexOf(record.status.toLowerCase())]}
                         </span>
+                        </Button>
                         <Divider type="vertical" />
+                        <Button icon={"close-circle"} onClick={() => { this.updateLoanStatus(record.loanReqID, actionList[statusList.indexOf(record.status.toLowerCase())]) }}>
                         <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
-                    </span>
+                        </Button>
+                    </span> :
+                        <Button disabled>
+                            none
+                        </Button>
                 )
             }
         ];
@@ -170,7 +184,7 @@ class RequestedLoans extends React.Component {
                         Requested Loans
                     </span>
 
-                    <Button type="primary" onClick={e => { this.setState({ spinning: true }); this.fetchRequestedLoans() }} shape="circle" icon="reload" size={'large'} style={{ float: "right", marginLeft: '15px' }} />
+                    <Button type="primary" onClick={e => { this.setState({ spinning: true }); this.fetchRequestedLoans() }} shape="circle" icon="reload" size={'medium'} style={{ float: "right", marginLeft: '15px' }} />
 
                     <Button
                         type="primary"
