@@ -17,8 +17,9 @@ class RequestedLoans extends React.Component {
             showForm: false,
             showSlider: false,
             spinning: true,
-            requestedLoans: []
-        }
+            requestedLoans: [],
+            peers: [],
+        };
         this.showLoanReqModal = this.showLoanReqModal.bind(this);
         this.showStatusSliderModal = this.showStatusSliderModal.bind(this);
     }
@@ -28,6 +29,16 @@ class RequestedLoans extends React.Component {
     }
 
     async componentDidMount() {
+        let braidConnect = localStorage.getItem('braidConnection');
+        if (braidConnect)
+        {
+            console.log('Found connection', braidConnect)
+            localStorage.clear('braidConnection');
+        }
+        else {
+            console.log('Creating new connection');
+            localStorage.setItem('braidConnection', 'something');
+        }
         console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
         console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
         while (!this.props.braidConnect.syndService) {
@@ -37,6 +48,19 @@ class RequestedLoans extends React.Component {
 
         console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
         this.fetchRequestedLoans();
+        this.fetchPeerInfo();
+    }
+
+    fetchPeerInfo() {
+        loanService.fetchPeers(this.props.braidConnect)
+            .then(
+                peers => {
+                    this.setState({ peers: peers });
+                },
+                error => {
+                    console.log("Error while peers info:", error);
+                }
+            );
     }
 
     fetchRequestedLoans() {
@@ -84,7 +108,7 @@ class RequestedLoans extends React.Component {
                 console.log("Status Flow:", responseJson)
                 this.showStatusSliderModal();
             })
-    }
+    };
 
     updateLoanStatus = (id, status) => {
         console.log("ID, Status:", id, status, this.props.braidConnect)
@@ -201,7 +225,7 @@ class RequestedLoans extends React.Component {
                         footer={null}
                         onCancel={this.handleCancel} >
 
-                        <LoanReqFormWrapper handleOk={this.handleOk} />
+                        <LoanReqFormWrapper handleOk={this.handleOk} peers={this.state.peers}/>
 
                     </Modal>
                 </div>

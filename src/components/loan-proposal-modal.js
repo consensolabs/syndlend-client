@@ -77,7 +77,7 @@ class loanProposalModal extends React.Component {
                 {getFieldDecorator('lock-date', config)(<DatePicker />)}
             </Form.Item>
 
-            <Form.Item wrapperCol={{ span: 50}}>
+            <Form.Item wrapperCol={{ span: 24}}>
                 <div style={{float: "right"}}>
                 <Button type="secondary" onClick={e => { this.props.form.resetFields() }} style={{marginRight:'15px'}}>
                     CLEAR

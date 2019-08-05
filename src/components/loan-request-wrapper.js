@@ -9,6 +9,7 @@ import {
   Button,
 } from 'antd';
 import { LoanService } from '../services';
+import {message} from "antd/lib/index";
 
 const { Option } = Select;
 
@@ -18,6 +19,10 @@ class loanRequestForm extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+        confirmLoading: false,
+    }
   }
 
   handleSubmit = e => {
@@ -26,12 +31,22 @@ class loanRequestForm extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
 
-        loanService.createLoanRequest(this.props.braidConnect,values.bank,values.amount,"Consenso Labs")
+        loanService.createLoanRequest(this.props.braidConnect,values.bank, values.amount,"Consenso Labs")
           .then(
             response => {
-              console.log("response:",response)
-              this.props.form.resetFields();
-              this.props.handleOk();
+              console.log("response:",response);
+                this.setState({
+                    confirmLoading: true,
+                });
+                setTimeout(() => {
+                    this.setState({
+                        confirmLoading: false,
+                    });
+                    message.success('Loan request has been created successfully ', 1);
+                    this.props.form.resetFields();
+                    this.props.handleOk();
+                }, 2000);
+
             },
             error => {
               console.log("Error while creating Loan Request:", error);
@@ -84,9 +99,8 @@ class loanRequestForm extends React.Component {
                     rules: [{ required: true, message: 'Please select Bank!' }],
                 })(
                     <Select placeholder="Select a bank">
-                        <Option value="O=Agent Bank,L=Mumbai,C=IN">Bank A</Option>
-                        <Option value="O=Agent Bank,L=Bangalore,C=IN">Bank B</Option>
-                    </Select>,
+                        {this.props.peers.map((peer) => {return(<Option value={peer}>{peer}</Option>)})}
+                    </Select>
                 )}
             </Form.Item>
 
@@ -102,13 +116,15 @@ class loanRequestForm extends React.Component {
                 <Button type="link" style={{float:'right',fontWeight:'500'}}>+ ADD NEW COLLATERAL</Button>
             </Form.Item>
 
-            <Form.Item wrapperCol={{ span: 12, offset: 12 }}>
+            <Form.Item wrapperCol={{ span: 24}}>
+                <div style={{float: "right"}}>
                 <Button type="secondary" onClick={e => { this.props.form.resetFields() }} style={{marginRight:'15px'}}>
                     CLEAR
                 </Button>
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" loading={this.state.confirmLoading}>
                     SUBMIT REQUEST
                 </Button>
+                </div>
             </Form.Item>
       </Form>
     );
