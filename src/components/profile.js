@@ -1,5 +1,11 @@
 import React from 'react';
-import { Row, Col, Button, Table, Divider } from 'antd';
+import { Row, Col, Button, Statistic, Table, Divider, Progress, Icon, Popover, Card } from 'antd';
+import { connect } from 'react-redux';
+import { LoanService } from '../services';
+
+
+const loanService = new LoanService();
+
 
 const collateralData = [
   {
@@ -88,10 +94,60 @@ const projectCols = [
   },
 ];
 
-const Profile = () => {
+
+class Profile extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            peers: [],
+            cashBalance: ''
+        }
+    }
+
+
+    componentWillMount() {
+
+        loanService.fetchPeers(this.props.braidConnect)
+            .then(
+                peers => {
+                    this.setState({ peers: peers });
+                },
+                error => {
+                    console.log("Error while peers info:", error);
+                }
+            );
+
+
+        loanService.fetchCashBalance(this.props.braidConnect, 'USD')
+            .then(
+                cashBalance => {
+                    this.setState({ cashBalance: cashBalance });
+                },
+                error => {
+                    console.log("Error while peers info:", error);
+                }
+            );
+
+    }
+
+    peerInfo() {
+        return(
+            <div>{this.state.peers.map((peer) => {return <p><Icon style={{ fontSize: '24px', color: '#08c' }}  type="bank"/>{peer}</p>})}
+        </div>
+        )
+
+    }
+
+    render() {
+
   return (
     <div>
+
       <h2>Profile</h2>
+      <Row>
+      <Col span={12}>
       <Row>
         <Col span={8}>
           <div style={{ margin: "1.25em 0em" }}>
@@ -127,6 +183,7 @@ const Profile = () => {
             }}>Consenso Labs Pvt. Ltd. </span>
           </div>
         </Col>
+
       </Row>
       <Row style={{ margin: '20px 0px' }}>
         <Col span={4}>
@@ -168,6 +225,91 @@ const Profile = () => {
           </div>
         </Col>
       </Row>
+        <Row style={{ margin: '20px 0px' }}>
+            <Col span={4}>
+                <div>
+            <span style={{
+                margin: "1em 0em",
+                fontSize: "1.0em",
+                fontWeight: 500
+            }}>Profile Strength </span>
+                </div>
+            </Col>
+            <Col span={8}>
+                <Progress type="circle" percent={75} width={80}/>
+            </Col>
+        </Row>
+      </Col>
+          <Col span={12}>
+              <Row>
+                  <Col span={8}>
+                      <div style={{ margin: "1.25em 0em" }}>
+            <span style={{
+                fontSize: "1.25em",
+                fontWeight: 500
+            }}>Basic Details
+            <Button
+                type="link"
+                icon="edit"
+            >
+              </Button>
+            </span>
+                      </div>
+                  </Col>
+              </Row>
+              <div style={{ background: '#ECECEC', padding: '30px' }}>
+              <Row gutter={16}>
+                  <Popover content={this.peerInfo()} title="Peers in the network">
+                  <Col span={12}>
+                      <Button type="link" >
+                      <Statistic title="Active Peers" value={this.state.peers.length} prefix={<Icon type="team" />} />
+                      </Button>
+                  </Col>
+                  </Popover>
+                  <Col span={12}>
+                      <Statistic title={"Account Balance (" + this.state.cashBalance.split(' ')[1]+ ")"} value={this.state.cashBalance.split(" ")[0]} precision={2} />
+                      <Button style={{ marginTop: 16 }} type="primary">
+                          Fund account
+                      </Button>
+                  </Col>
+              </Row>
+              </div>
+
+              <div style={{ background: '#ECECEC', padding: '30px' }}>
+              <Row gutter={16}>
+
+                  <Col span={12}>
+                      <Card>
+                          <Statistic
+                              title="Active"
+                              value={11.28}
+                              precision={2}
+                              valueStyle={{ color: '#3f8600' }}
+                              prefix={<Icon type="arrow-up" />}
+                              suffix="%"
+                          />
+                      </Card>
+                  </Col>
+                  <Col span={12}>
+                      <Card>
+                          <Statistic
+                              title="Idle"
+                              value={9.3}
+                              precision={2}
+                              valueStyle={{ color: '#cf1322' }}
+                              prefix={<Icon type="arrow-down" />}
+                              suffix="%"
+                          />
+                      </Card>
+                  </Col>
+
+              </Row>
+              </div>
+
+
+          </Col>
+      </Row>
+
       <Row style={{ margin: '20px 0px' }}>
         <Col span={10}>
             <h2>Collaterals</h2>
@@ -196,6 +338,24 @@ const Profile = () => {
       </Row>
     </div>
   );
+}
+}
+
+    const mapStateToProps = state => {
+    return {
+        activeRoleId: state.activeRoleId,
+        braidConnect: state.braidConnect,
+        braidStatus: state.braidStatus
+    };
 };
 
-export default Profile;
+    const mapDispatchToProps = dispatch => {
+    return {};
+};
+
+
+
+    export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Profile);
