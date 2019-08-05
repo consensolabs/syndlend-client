@@ -21,6 +21,12 @@ function onError(err) { console.error(err); process.exit(); }
 
 // Uses RPC call the Braid RPC Service on the node, and handles the response
 // using callbacks.
+app.get('/service/me', (req, res) => {
+
+    braid.syndService.myInfo(
+        result => res.send("Participants: " + JSON.stringify(result) + "!"),
+        err => res.status(500).send(err));
+});
 
 
 app.get('/service/participants', (req, res) => {

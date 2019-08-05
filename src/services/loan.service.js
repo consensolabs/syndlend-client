@@ -1,5 +1,34 @@
 export class LoanService {
 
+
+    fetchPeers(braidConnect) {
+        let promiseFunction = braidConnect.syndService.getParties()
+            .then(response => {
+                console.log("fetchLoanRequests-Response:", response)
+                return response.peers;
+
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+
+
+    fetchCashBalance(braidConnect, currency) {
+        let promiseFunction = braidConnect.syndService.getCashBalance(currency)
+            .then(response => {
+                console.log("fetchLoanRequests-Response:", response)
+                return response;
+
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
     createLoanRequest(braidConnect, agent, amount, company) {
         let promiseFunction = braidConnect.syndService.createLoanRequest(
             agent,
@@ -15,6 +44,8 @@ export class LoanService {
             });
         return promiseFunction;
     };
+
+
 
 
 
