@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from 'react-redux';
-import { Modal, Table, Divider, Spin, Button, Badge } from "antd";
+import { Modal, Table, Tag, Spin, Button, Badge } from "antd";
 import { LoanService } from '../services';
 import LoanProposalForm from "./loan-proposal-modal";
 import ProposalDetails from './proposal-details';
@@ -65,6 +65,15 @@ class IssuedLoans extends React.Component {
             loanInfo: loanInfo,
         });
     };
+
+
+    showStatusFlow = (id) => {
+        this.props.braidConnect.syndService.listLoanRequestDetails(id)
+            .then(responseJson => {
+                console.log("Status Flow:", responseJson)
+                this.showStatusSliderModal();
+            })
+    }
 
     fetchIssuedLoans() {
         loanService.fetchIssuedLoans(this.props.braidConnect)
@@ -167,6 +176,15 @@ class IssuedLoans extends React.Component {
                 title: "Status",
                 dataIndex: "status",
                 key: "status",
+                render: (status, record) => (
+                    <span  onClick={() => { this.showStatusFlow(record.loanId) }}>
+                        <Tag style={{fontWeight: '500', cursor: 'pointer' }} color={"geekblue"}>
+                  {status.toUpperCase()}
+                    </Tag>
+
+
+                    </span>
+                )
             },
 
 
