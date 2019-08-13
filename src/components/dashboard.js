@@ -16,20 +16,21 @@ class Dashboard extends React.Component {
       case '0': return (
         <React.Fragment>
           <h2> Dashboard </h2>
-          <RequestedLoans />
+          <RequestedLoans roleId={this.props.activeRoleId}/>
         </React.Fragment>
       );
       case '1': return (
         <React.Fragment>
           <h2> Dashboard </h2>
-          <RequestedLoans />
+          <RequestedLoans roleId={this.props.activeRoleId}/>
           <IssuedLoans roleId={this.props.activeRoleId} />
         </React.Fragment>
       );
       case '2': return (
         <React.Fragment>
           <h2> Dashboard </h2>
-          <IssuedLoans roleId={this.props.activeRoleId} />
+          <IssuedLoans roleId={this.props.activeRoleId} type={"all"}/>
+          <IssuedLoans roleId={this.props.activeRoleId} type={"own"} />
         </React.Fragment>
       );
       default: return (

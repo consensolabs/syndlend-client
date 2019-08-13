@@ -4,6 +4,8 @@ import { Modal, Table, Tag, Spin, Button, Badge } from "antd";
 import { LoanService } from '../services';
 import LoanProposalForm from "./loan-proposal-modal";
 import ProposalDetails from './proposal-details';
+import DisburseConfirmDetails from './disburse-confirm-modal.js';
+import {UserContext} from '../Context';
 
 const loanService = new LoanService();
 
@@ -21,6 +23,7 @@ class IssuedLoans extends React.Component {
             loanInfo: {},
             showProposalForm: false,
             showProposalDetails: false,
+            showDisburseModal: false,
         };
     }
 
@@ -39,6 +42,7 @@ class IssuedLoans extends React.Component {
         this.setState({
             showProposalForm: false,
             showProposalDetails: false,
+            showDisburseModal: false,
             showSlider: false
         });
         this.fetchRequestedLoans();
@@ -48,6 +52,7 @@ class IssuedLoans extends React.Component {
         this.setState({
             showProposalForm: false,
             showProposalDetails: false,
+            showDisburseModal: false,
             showSlider: false
         });
     };
@@ -67,6 +72,15 @@ class IssuedLoans extends React.Component {
     };
 
 
+    showDisburseDetailsModal = (loanInfo) => {
+        this.setState({
+            showDisburseModal: true,
+            loanInfo: loanInfo,
+        });
+    };
+    sh
+
+
     showStatusFlow = (id) => {
         this.props.braidConnect.syndService.listLoanRequestDetails(id)
             .then(responseJson => {
@@ -80,7 +94,7 @@ class IssuedLoans extends React.Component {
             .then(
                 issuedLoans => {
                     this.setState({ issuedLoans: issuedLoans, spinning: false });
-                    console.log('non dub loans', this.state.issuedLoans.filter((loan) => {return loan.status === "ISSUED"}));
+                    console.log(issuedLoans);
 
                 },
                 error => {
@@ -101,6 +115,8 @@ class IssuedLoans extends React.Component {
             );
     }
 
+
+
     formatLendProposals(lendProposals) {
         let lendPoposalsDict = {};
         console.log("format lend proposals");
@@ -116,6 +132,12 @@ class IssuedLoans extends React.Component {
             );
 
         return lendPoposalsDict;
+
+    }
+
+    filterIssuedLoans(issuedLoans) {
+
+        return issuedLoans.filter((loan) => {return this.context.name === loan.owner})
 
     }
 
@@ -138,6 +160,15 @@ class IssuedLoans extends React.Component {
                     </Button>
                     </Badge>
                     :
+                    (this.context.name === record.owner ?
+
+                    <Button icon={"dollar"} onClick={() => {
+                                this.showDisburseDetailsModal(record)
+                            }}>
+                        <span style={{cursor: 'pointer', textTransform: 'capitalize'}}>
+                            Disburse
+                        </span>
+                    </Button> :
                     <Button icon={"check-circle"} onClick={() => {
                         this.showProposalModal(record)
                     }}>
@@ -145,6 +176,8 @@ class IssuedLoans extends React.Component {
                             Propose
                         </span>
                     </Button>
+
+                    )
                 }
                     </span>
 
@@ -167,7 +200,7 @@ class IssuedLoans extends React.Component {
             },
 
             {
-                title: "Amount",
+                title: "Amount (USD)",
                 dataIndex: "amount",
                 key: "amount"
             },
@@ -211,14 +244,14 @@ class IssuedLoans extends React.Component {
                             fontSize: "1.17em",
                             fontWeight: 500
                         }} >
-                        Issued Loans
+                        {this.props.type==='own' ? 'Loans lended' : 'All Issued Loans'}
                     </span>
 
                 <Button type="primary" onClick={e => { this.setState({ spinning: true }); this.fetchIssuedLoans() ; this.fetchLendProposals() }} shape="circle" icon="reload" size={'medium'} style={{ float: "right", marginLeft: '15px' }} />
                 </div>
                     <Spin size="large" spinning={this.state.spinning}>
                     <Table
-                        dataSource={this.state.issuedLoans}
+                        dataSource={this.props.type === "own" ? this.filterIssuedLoans(this.state.issuedLoans) : this.state.issuedLoans}
                         columns={issuedLoanColumns}
                         pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '30'] }} />
                 </Spin>
@@ -230,6 +263,18 @@ class IssuedLoans extends React.Component {
                     onCancel={this.handleCancel} >
 
                     <LoanProposalForm handleOk={this.handleOk} loanInfo={this.state.loanInfo}/>
+
+                </Modal>
+
+
+                <Modal
+                    title="Disburse Loan amount to Borrower"
+                    visible={this.state.showDisburseModal}
+                    onOk={this.handleOk}
+                    footer={null}
+                    onCancel={this.handleCancel} >
+
+                    <DisburseConfirmDetails handleOk={this.handleOk} loanInfo={this.state.loanInfo}/>
 
                 </Modal>
 
@@ -263,3 +308,4 @@ export default connect(
     mapStateToProps,
     mapDispatchToProps
 )(IssuedLoans);
+IssuedLoans.contextType=UserContext;
