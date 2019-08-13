@@ -34,7 +34,7 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
     }
     return (
         <Header className="header">
-        <div className="logo" />
+        <div className="nologo" />
         <Dropdown.Button
           className="user-btn"
           overlay={menu}

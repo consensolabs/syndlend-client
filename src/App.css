@@ -3,12 +3,21 @@
 .App {
   text-align: center;
 }
-.logo {
+
+.nologo {
   width: 120px;
   height: 31px;
   background: rgba(255, 255, 255, 0.2);
   margin: 16px 28px 16px 0;
   float: left;
+}
+
+.logo {
+  background: url(./images/syndlend-logo.png) no-repeat center;
+  display: inline-block;
+  width: 200px;
+  height: 60px;
+
 }
 .requests-bar {
   margin: 1.5em 0em;
