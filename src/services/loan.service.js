@@ -1,10 +1,23 @@
 export class LoanService {
 
 
+    myInfo(braidConnect) {
+        let promiseFunction = braidConnect.syndService.myInfo()
+            .then(response => {
+                console.log("myInfo-Response:", response);
+                return response;
+
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
     fetchPeers(braidConnect) {
         let promiseFunction = braidConnect.syndService.getParties()
             .then(response => {
-                console.log("fetchLoanRequests-Response:", response)
+                console.log("fetchPeers-Response:", response);
                 return response.peers;
 
             })
@@ -28,6 +41,35 @@ export class LoanService {
             });
         return promiseFunction;
     };
+
+    selfIssueCash(braidConnect, value, currency) {
+        let promiseFunction = braidConnect.syndService.selfIssueCash(value, currency)
+            .then(response => {
+                console.log("selfIssueCash-Response:", response)
+                return response;
+
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+    disburseLoan(braidConnect, loanId) {
+
+        let promiseFunction = braidConnect.syndService.disburseLoan(loanId)
+            .then(response => {
+                console.log("disburseLoan-Response:", response)
+                return response;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+
+    }
+
+
 
     createLoanRequest(braidConnect, agent, amount, company) {
         let promiseFunction = braidConnect.syndService.createLoanRequest(
@@ -123,6 +165,7 @@ export class LoanService {
                     key: item.state.data.loanId.id,
                     loanReqID: item.state.data.loanReqID.id,
                     borrowerNode: item.state.data.borrowerNode.name,
+                    owner: item.state.data.owner.name,
                     loanId: item.state.data.loanId.id,
                     amount: item.state.data.amount,
                     status: item.state.data.status,
@@ -160,7 +203,7 @@ export class LoanService {
 
     updateLoanStatus(braidConnect, id, status) {
         let promiseFunction = braidConnect.syndService.issueLoan(
-            'O=Agent Bank,L=Mumbai,C=IN',
+            'O=Loan Lender, L=Paris, C=FR',
             id
         )
             .then(response => {
