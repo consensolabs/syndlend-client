@@ -1,20 +1,22 @@
 import React from 'react';
 import 'antd/dist/antd.css';
-import { Slider } from 'antd';
+import { Tag, Timeline, Icon } from 'antd';
 
-const marks = {
-    0: "Open",
-    20: "Verified",
-    40: "Issued",
-    60: "Proposed",
-    80: "Locked",
-    100: "Completed"
-};
+const statusTimeline = ["OPEN", "VERIFIED", "ISSUED", "PROPOSED", "COMPLETED"];
 
-const StatusFlowDisplayWrapper = () => {
+
+const StatusFlowDisplayWrapper = (props) => {
   return (
-    <div>
-        <Slider marks={marks} defaultValue={40} disabled={true} />
+    <div style={{padding:10}}>
+        <Timeline mode="alternate">
+            { statusTimeline.slice(0, statusTimeline.indexOf(props.status)+1).
+            map((status) => {return(<Timeline.Item color="green"><Tag style={{fontWeight: '500', cursor: 'pointer' }} color={"blue"}>
+                {status.toUpperCase()}
+            </Tag> 2015-09-01</Timeline.Item>)})
+            }
+            <Timeline.Item dot={<Icon type="clock-circle-o" style={{ fontSize: '16px' }} />}>
+            </Timeline.Item>
+        </Timeline>,
     </div>
   );
 };

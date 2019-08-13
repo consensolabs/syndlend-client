@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from 'react-redux';
-import { Modal, Button, Table, Divider, Spin, Tag } from "antd";
+import { Modal, Button, Table, Divider, Spin, Tag, Popover } from "antd";
 import { LoanService } from '../services';
 import LoanReqFormWrapper from "./loan-request-wrapper.js";
 import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
@@ -19,6 +19,7 @@ class RequestedLoans extends React.Component {
             spinning: true,
             requestedLoans: [],
             peers: [],
+            loanRequestStatus: null,
         };
         this.showLoanReqModal = this.showLoanReqModal.bind(this);
         this.showStatusSliderModal = this.showStatusSliderModal.bind(this);
@@ -43,7 +44,7 @@ class RequestedLoans extends React.Component {
         console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
         while (!this.props.braidConnect.syndService) {
             console.log("waiting for connection: sleeping for 500 ms")
-            await this.sleep(1200);
+            await this.sleep(2000);
         }
 
         console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
@@ -81,9 +82,10 @@ class RequestedLoans extends React.Component {
         });
     };
 
-    showStatusSliderModal = () => {
+    showStatusSliderModal = (status) => {
         this.setState({
-            showSlider: true
+            showSlider: true,
+            loanRequestStatus: status
         });
     };
 
@@ -102,12 +104,14 @@ class RequestedLoans extends React.Component {
         });
     };
 
-    showStatusFlow = (id) => {
-        this.props.braidConnect.syndService.listLoanRequestDetails(id)
-            .then(responseJson => {
-                console.log("Status Flow:", responseJson)
-                this.showStatusSliderModal();
-            })
+    showStatusFlow = (status) => {
+        // this.props.braidConnect.syndService.listLoanRequestDetails(id)
+        //     .then(responseJson => {
+        //         console.log("Status Flow:", responseJson)
+        //         this.showStatusSliderModal();
+        //     });
+
+        this.showStatusSliderModal(status);
     };
 
     updateLoanStatus = (id, status) => {
@@ -133,7 +137,7 @@ class RequestedLoans extends React.Component {
 
     render() {
         const statusList = ['open', 'verified', 'issued', 'proposed', 'locked', 'complete'];
-        const actionList = ['verify', 'issue'];
+        const actionList = ['verify', 'issue', 'finalize'];
         const requestedLoanColumns = [
             {
                 title: "REQ ID",
@@ -152,7 +156,7 @@ class RequestedLoans extends React.Component {
             },
 
             {
-                title: "Amount",
+                title: "Amount (USD)",
                 dataIndex: "amount",
                 key: "amount"
             },
@@ -162,10 +166,12 @@ class RequestedLoans extends React.Component {
                 dataIndex: "status",
                 key: "status",
                 render: (status, record) => (
-                    <span  onClick={() => { this.showStatusFlow(record.loanReqID) }}>
+                    <span  onClick={() => { this.showStatusFlow(status) }}>
+                        <Popover content={<StatusFlowDisplayWrapper status={status}/>} title="Loan request status">
                         <Tag style={{fontWeight: '500', cursor: 'pointer' }} color={"blue"}>
                   {status.toUpperCase()}
                     </Tag>
+                        </Popover>
 
 
                     </span>
@@ -188,8 +194,10 @@ class RequestedLoans extends React.Component {
                         <span style={{ color: 'brown', cursor: 'pointer', textTransform: 'capitalize' }}> Reject </span>
                         </Button>
                     </span> :
-                        <Button disabled>
-                            none
+                        <Button icon={"check-circle"}>
+                            <span style={{ cursor: 'pointer', textTransform: 'capitalize' }} >
+                            {actionList[statusList.indexOf(record.status.toLowerCase())]}
+                            </span>
                         </Button>
                 )
             }
@@ -233,7 +241,7 @@ class RequestedLoans extends React.Component {
                 <Spin size="large" spinning={this.state.spinning}>
                     <Table
                         dataSource={this.state.requestedLoans}
-                        columns={requestedLoanColumns}
+                        columns={parseInt(this.props.roleId)===0 ? requestedLoanColumns.slice(0,-1):requestedLoanColumns}
                         pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '30'] }} />
                 </Spin>
 
@@ -244,7 +252,7 @@ class RequestedLoans extends React.Component {
                     footer={null}
                     onCancel={this.handleCancel} >
 
-                    <StatusFlowDisplayWrapper />
+                    <StatusFlowDisplayWrapper status={this.state.loanRequestStatus}/>
 
                 </Modal>
             </React.Fragment>
