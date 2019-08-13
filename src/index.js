@@ -12,7 +12,7 @@ import * as serviceWorker from './serviceWorker';
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 store.dispatch(getActiveRole());
-store.dispatch(braidConnect());
+// store.dispatch(braidConnect('http://localhost:8889/api/'));
 
 ReactDOM.render(
     <Provider store={store}>
