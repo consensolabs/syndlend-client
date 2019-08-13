@@ -1,7 +1,7 @@
 import { GET_ACTIVE_ROLE, SET_ACTIVE_ROLE, RPC_CONNECT, RPC_STATUS } from './types';
 import { Proxy } from 'braid-client';
 
-const onRPCOpen = () => {
+export const onRPCOpen = () => {
     console.log("Connected");
     return {
         type: RPC_STATUS,
@@ -13,8 +13,8 @@ const onRPCClose = () => { console.log('Disconnected from node'); }
 
 const onRPCError = (err) => { console.error(err); }
 
-export const braidConnect = () => {
-    let braidConnect = new Proxy({url: 'http://localhost:8888/api/'}, onRPCOpen, onRPCClose, onRPCError, {strictSSL: false})
+export const braidConnect = (url) => {
+    let braidConnect = new Proxy({url: url}, onRPCOpen, onRPCClose, onRPCError, {strictSSL: false})
     return {
         type: RPC_CONNECT,
         braidConnect
