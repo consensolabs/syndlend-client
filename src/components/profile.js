@@ -141,15 +141,18 @@ class Profile extends React.Component {
         userService.fetchUsersInfo(null, sharedId)
             .then(
                 userList => {
-                    console.log(userList);
+                    if (userList.meta.status) {
 
 
                     this.setState({userDetails: userList.data[0], userInfospinning: false});
-                },
-                error => {
-                    console.log("Error while fetching loans:", error);
                 }
-            );
+                else {
+                    console.log("Error while fetching user details:", userList.meta.message);
+                }}
+            ).catch(
+                error => {
+                    console.log("Error while fetching user details:", error);
+                });
 
     }
 

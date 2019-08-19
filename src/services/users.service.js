@@ -21,7 +21,7 @@ export class UserService {
             return response;
         }).catch(function (error) {
             console.log(error);
-            return {ok: false, msg: error};
+            return { meta:{ status: false, message: error } };
         });
 
         return promiseFunction;
