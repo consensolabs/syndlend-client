@@ -32,8 +32,7 @@ class IssuedLoans extends React.Component {
     }
 
     async componentDidMount() {
-        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect)
-        await this.sleep(1000);
+       await this.sleep(1000);
         this.fetchIssuedLoans();
         this.fetchLendProposals();
     }
@@ -82,15 +81,15 @@ class IssuedLoans extends React.Component {
 
 
     showStatusFlow = (id) => {
-        this.props.braidConnect.syndService.listLoanRequestDetails(id)
+        this.context.connection.syndService.listLoanRequestDetails(id)
             .then(responseJson => {
                 console.log("Status Flow:", responseJson)
                 this.showStatusSliderModal();
             })
-    }
+    };
 
     fetchIssuedLoans() {
-        loanService.fetchIssuedLoans(this.props.braidConnect)
+        loanService.fetchIssuedLoans(this.context.connection)
             .then(
                 issuedLoans => {
                     this.setState({ issuedLoans: issuedLoans, spinning: false });
@@ -104,7 +103,7 @@ class IssuedLoans extends React.Component {
     }
 
     fetchLendProposals() {
-        loanService.fetchLendProposals(this.props.braidConnect)
+        loanService.fetchLendProposals(this.context.connection)
             .then(
                 lendProposals => {
                     this.setState({ lendProposals: lendProposals, spinning: false });
@@ -137,7 +136,7 @@ class IssuedLoans extends React.Component {
 
     filterIssuedLoans(issuedLoans) {
 
-        return issuedLoans.filter((loan) => {return this.context.name === loan.owner})
+        return issuedLoans.filter((loan) => {return this.context.me.name === loan.owner})
 
     }
 
@@ -160,7 +159,7 @@ class IssuedLoans extends React.Component {
                     </Button>
                     </Badge>
                     :
-                    (this.context.name === record.owner ?
+                    (this.context.me.name === record.owner ?
 
                     <Button icon={"dollar"} onClick={() => {
                                 this.showDisburseDetailsModal(record)
@@ -262,7 +261,7 @@ class IssuedLoans extends React.Component {
                     footer={null}
                     onCancel={this.handleCancel} >
 
-                    <LoanProposalForm handleOk={this.handleOk} loanInfo={this.state.loanInfo}/>
+                    <LoanProposalForm handleOk={this.handleOk} loanInfo={this.state.loanInfo} connection={this.context.connection}/>
 
                 </Modal>
 
@@ -274,7 +273,7 @@ class IssuedLoans extends React.Component {
                     footer={null}
                     onCancel={this.handleCancel} >
 
-                    <DisburseConfirmDetails handleOk={this.handleOk} loanInfo={this.state.loanInfo}/>
+                    <DisburseConfirmDetails handleOk={this.handleOk} loanInfo={this.state.loanInfo} connection={this.context.connection}/>
 
                 </Modal>
 
@@ -285,7 +284,7 @@ class IssuedLoans extends React.Component {
                     footer={null}
                     onCancel={this.handleCancel} >
 
-                    <ProposalDetails handleOk={this.handleOk} loanInfo={this.state.loanInfo} lendProposals={this.formatLendProposals(this.state.lendProposals)[this.state.loanInfo.loanId]}/>
+                    <ProposalDetails handleOk={this.handleOk} loanInfo={this.state.loanInfo} lendProposals={this.formatLendProposals(this.state.lendProposals)[this.state.loanInfo.loanId]} connection={this.context.connection}/>
 
                 </Modal>
             </React.Fragment>
@@ -293,19 +292,6 @@ class IssuedLoans extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        braidConnect: state.braidConnect,
-        braidStatus: state.braidStatus
-    };
-};
+export default IssuedLoans;
 
-const mapDispatchToProps = dispatch => {
-    return {};
-};
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(IssuedLoans);
 IssuedLoans.contextType=UserContext;

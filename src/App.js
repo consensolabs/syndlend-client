@@ -13,16 +13,21 @@ import {UserContext} from './Context';
 import {LoanService} from './services/loan.service';
 import {connect} from "react-redux";
 import {setActiveRole} from "./actions";
-import { braidConnect } from './actions';
+import {BraidService} from './services/braid.service';
 
 const loanService = new LoanService();
+const braidService = new BraidService();
 
 const { Content } = Layout;
 
 class App extends React.Component {
 
+  contextData = {};
+
   constructor(props) {
     super(props);
+
+
 
 
     this.state = {
@@ -37,24 +42,17 @@ class App extends React.Component {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-  async componentWillMount() {
-
-      // this.fetchMyInfo();
-
-
-  }
 
     async fetchMyInfo() {
       this.setState({loading: true});
-      while (!this.props.braidConnect.syndService) {
-          console.log("waiting for connection: sleeping for 2000 ms")
-          await this.sleep(2000);
-      }
-      loanService.myInfo(this.props.braidConnect)
+
+      loanService.myInfo(braidService.connection)
           .then(
               me => {
                   this.setState({ me: me,
                       loading: false});
+                  this.contextData["me"] = me;
+
               },
               error => {
                   console.log("Error while peers info:", error);
@@ -80,6 +78,22 @@ class App extends React.Component {
         });
     };
 
+    async onNodeChange (url) {
+
+        this.setState({loading: true});
+
+        braidService.connect(url);
+        while (!braidService.connected) {
+            console.log("waiting for connection: sleeping for 100 ms")
+            await this.sleep(100);
+        }
+
+        this.contextData["connection"] = braidService.connection;
+
+        this.fetchMyInfo();
+
+    }
+
 
 
     getNodes= () =>{
@@ -87,7 +101,7 @@ class App extends React.Component {
             {name:"Agent node",url: "http://localhost:8002/api/", roleId: "1"},
             {name:"Lender node",url: "http://localhost:8003/api/", roleId: "2"}];
         return(
-            <Menu onClick={({item})=>{console.log(item);this.props.onNodeChange(item.props.url);this.props.onRoleChange(item.props.roleId);this.fetchMyInfo()}}>
+            <Menu onClick={({item})=>{console.log(item);this.onNodeChange(item.props.url);this.props.onRoleChange(item.props.roleId);}}>
                 {
                     nodeList.map((node) =><Menu.Item key={node.name} url={node.url} roleId={node.roleId}>{node.name}</Menu.Item>)
                 }
@@ -136,7 +150,7 @@ class App extends React.Component {
 
     return (
         this.state.login ?
-            <UserContext.Provider value={this.state.me}>
+            <UserContext.Provider value={this.contextData}>
                 <BrowserRouter>
                     <Layout>
                         <Menubar/>
@@ -179,9 +193,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onNodeChange: url => {
-            dispatch(braidConnect(url));
-        },
         onRoleChange: activeRoleId => {
             dispatch(setActiveRole(activeRoleId));
         }

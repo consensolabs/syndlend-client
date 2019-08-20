@@ -27,6 +27,20 @@ export class LoanService {
         return promiseFunction;
     };
 
+    fetchTransactions(braidConnect) {
+        let promiseFunction = braidConnect.syndService.listTransactions()
+            .then(response => {
+                console.log("fetchTransactions-Response:", response)
+                return response;
+
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+
 
 
     fetchCashBalance(braidConnect, currency) {

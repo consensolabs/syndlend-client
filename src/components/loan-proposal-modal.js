@@ -10,6 +10,7 @@ import {
   message,
 } from 'antd';
 import { LoanService } from '../services';
+import {UserContext} from "../Context";
 
 const { Option } = Select;
 
@@ -28,7 +29,7 @@ class loanProposalModal extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
 
-        loanService.createLendProposal(this.props.braidConnect,this.props.loanInfo.loanId,values.amount)
+        loanService.createLendProposal(this.props.connection,this.props.loanInfo.loanId,values.amount)
           .then(
             response => {
               console.log("response:",response);
@@ -94,18 +95,6 @@ class loanProposalModal extends React.Component {
 
 const LoanProposalForm= Form.create({ name: 'validate_other' })(loanProposalModal);
 
-const mapStateToProps = state => {
-  return {
-    braidConnect: state.braidConnect
-  };
-};
+export default LoanProposalForm;
 
-const mapDispatchToProps = dispatch => {
-  return {
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LoanProposalForm);
+LoanProposalForm.contextType=UserContext;

@@ -4,6 +4,8 @@ import { Modal, Button, Table, Divider, Spin, Tag, Popover } from "antd";
 import { LoanService } from '../services';
 import LoanReqFormWrapper from "./loan-request-wrapper.js";
 import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
+import {UserContext} from "../Context";
+import Transactions from "./transactions";
 
 const loanService = new LoanService();
 
@@ -30,30 +32,13 @@ class RequestedLoans extends React.Component {
     }
 
     async componentDidMount() {
-        let braidConnect = localStorage.getItem('braidConnection');
-        if (braidConnect)
-        {
-            console.log('Found connection', braidConnect)
-            localStorage.clear('braidConnection');
-        }
-        else {
-            console.log('Creating new connection');
-            localStorage.setItem('braidConnection', 'something');
-        }
-        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
-        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
-        while (!this.props.braidConnect.syndService) {
-            console.log("waiting for connection: sleeping for 500 ms")
-            await this.sleep(2000);
-        }
 
-        console.log("braidConnectStatus:", this.props.braidStatus, this.props.braidConnect.syndService)
         this.fetchRequestedLoans();
         this.fetchPeerInfo();
     }
 
     fetchPeerInfo() {
-        loanService.fetchPeers(this.props.braidConnect)
+        loanService.fetchPeers(this.context.connection)
             .then(
                 peers => {
                     this.setState({ peers: peers });
@@ -65,7 +50,7 @@ class RequestedLoans extends React.Component {
     }
 
     fetchRequestedLoans() {
-        loanService.fetchRequestedLoans(this.props.braidConnect)
+        loanService.fetchRequestedLoans(this.context.connection)
             .then(
                 requestedLoans => {
                     this.setState({ requestedLoans: requestedLoans, spinning: false });
@@ -115,8 +100,8 @@ class RequestedLoans extends React.Component {
     };
 
     updateLoanStatus = (id, status) => {
-        console.log("ID, Status:", id, status, this.props.braidConnect)
-        const rpc = this.props.braidConnect;
+
+        const rpc = this.context.connection;
         confirm({
             title: `Do you want to ${status} against Request ID: ${id}?`,
             okText: 'Confirm',
@@ -233,7 +218,7 @@ class RequestedLoans extends React.Component {
                         footer={null}
                         onCancel={this.handleCancel} >
 
-                        <LoanReqFormWrapper handleOk={this.handleOk} peers={this.state.peers}/>
+                        <LoanReqFormWrapper handleOk={this.handleOk} peers={this.state.peers} connection={this.context.connection}/>
 
                     </Modal>
                 </div>
@@ -260,18 +245,7 @@ class RequestedLoans extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        braidConnect: state.braidConnect,
-        braidStatus: state.braidStatus
-    };
-};
 
-const mapDispatchToProps = dispatch => {
-    return {};
-};
+export default RequestedLoans;
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(RequestedLoans);
+RequestedLoans.contextType=UserContext;

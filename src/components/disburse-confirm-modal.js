@@ -18,6 +18,7 @@ import {
 } from 'antd';
 import { LoanService } from '../services';
 import {connect} from "react-redux";
+import {UserContext} from "../Context";
 
 const loanService = new LoanService();
 
@@ -89,7 +90,7 @@ class DisburseConfirmDetails extends React.Component {
 
     disburseLoan(loanId) {
       this.setState({spinning: true});
-        loanService.disburseLoan(this.props.braidConnect, loanId)
+        loanService.disburseLoan(this.props.connection, loanId)
             .then(
                 response => {
                     console.log("Successully disbursed loan:", response);
@@ -165,20 +166,7 @@ class DisburseConfirmDetails extends React.Component {
   }
 }
 
+export default DisburseConfirmDetails;
 
-const mapStateToProps = state => {
-    return {
-        braidConnect: state.braidConnect,
-        braidStatus: state.braidStatus
-    };
-};
-
-const mapDispatchToProps = dispatch => {
-    return {};
-};
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(DisburseConfirmDetails);
+DisburseConfirmDetails.contextType=UserContext;
 

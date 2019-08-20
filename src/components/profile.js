@@ -102,8 +102,10 @@ class Profile extends React.Component {
 
     static contextType = UserContext;
 
+
     constructor(props) {
         super(props);
+
 
 
         this.state = {
@@ -117,21 +119,12 @@ class Profile extends React.Component {
         }
     }
 
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
-
-    async componentWillMount() {
-
-        while (!this.props.braidConnect.syndService) {
-            console.log("waiting for connection: sleeping for 500 ms")
-            await this.sleep(2000);
-        }
+    componentWillMount() {
 
         this.fetchPeerInfo();
         this.fetchAccountBalance();
-        this.fetchUsersInfo(this.context.owningKey);
+        this.fetchUsersInfo(this.context.me.owningKey);
 
 
     }
@@ -159,7 +152,7 @@ class Profile extends React.Component {
 
     fetchPeerInfo()
     {
-        loanService.fetchPeers(this.props.braidConnect)
+        loanService.fetchPeers(this.context.connection)
             .then(
                 peers => {
                     this.setState({ peers: peers });
@@ -172,7 +165,7 @@ class Profile extends React.Component {
 
     fetchAccountBalance()
     {
-        loanService.fetchCashBalance(this.props.braidConnect, 'USD')
+        loanService.fetchCashBalance(this.context.connection, 'USD')
             .then(
                 cashBalance => {
                     this.setState({ cashBalance: cashBalance });
@@ -222,7 +215,7 @@ class Profile extends React.Component {
     fundAccount = () => {
         console.log(this.state.fundValue);
 
-        loanService.selfIssueCash(this.props.braidConnect, parseInt(this.state.fundValue), 'USD')
+        loanService.selfIssueCash(this.context.connection, parseInt(this.state.fundValue), 'USD')
             .then(
                 response => {
                     console.log("Successfully issued cash:", response);
@@ -391,7 +384,7 @@ class Profile extends React.Component {
                 margin: "1em 0em",
                 fontSize: "1.0em",
                 fontWeight: 400
-            }}>{this.context.name}</span>
+            }}>{this.context.me.name}</span>
                       </div>
                   </Col>
 
@@ -496,16 +489,12 @@ class Profile extends React.Component {
     const mapStateToProps = state => {
     return {
         activeRoleId: state.activeRoleId,
-        braidConnect: state.braidConnect,
-        braidStatus: state.braidStatus
     };
 };
 
     const mapDispatchToProps = dispatch => {
     return {};
 };
-
-
 
     export default connect(
     mapStateToProps,

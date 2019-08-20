@@ -10,6 +10,7 @@ import {
 } from 'antd';
 import { LoanService } from '../services';
 import {message} from "antd/lib/index";
+import {UserContext} from "../Context";
 
 const { Option } = Select;
 
@@ -31,7 +32,7 @@ class loanRequestForm extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
 
-        loanService.createLoanRequest(this.props.braidConnect,values.bank, values.amount,"Consenso Labs")
+        loanService.createLoanRequest(this.props.connection, values.bank, values.amount,"Consenso Labs")
           .then(
             response => {
               console.log("response:",response);
@@ -133,18 +134,6 @@ class loanRequestForm extends React.Component {
 
 const LoanReqFormWrapper = Form.create({ name: 'validate_other' })(loanRequestForm);
 
-const mapStateToProps = state => {
-  return {
-    braidConnect: state.braidConnect
-  };
-};
+export default LoanReqFormWrapper;
 
-const mapDispatchToProps = dispatch => {
-  return {
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LoanReqFormWrapper);
+LoanReqFormWrapper.contextType=UserContext;

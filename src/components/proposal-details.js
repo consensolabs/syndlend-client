@@ -15,6 +15,8 @@ import {
 } from 'antd';
 import { LoanService } from '../services';
 import {connect} from "react-redux";
+import {UserContext} from "../Context";
+import Transactions from "./transactions";
 
 const loanService = new LoanService();
 
@@ -22,11 +24,6 @@ const { Option } = Select;
 
 const { Panel } = Collapse;
 
-const text = `
-  A dog is a type of domesticated animal.
-  Known for its loyalty and faithfulness,
-  it can be found as a welcome guest in many households across the world.
-`;
 
 const customPanelStyle = {
     background: '#f7fff6',
@@ -66,8 +63,6 @@ class ProposalDetails extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log('const');
-    // this.state = {userVerified: this.props.userDetails.verified}
   }
 
 
@@ -91,7 +86,7 @@ class ProposalDetails extends React.Component {
             disabled={accepted}
             onConfirm={() => {
 
-                loanService.createLendResponse(this.props.braidConnect, proposalId)
+                loanService.createLendResponse(this.props.connection, proposalId)
                     .then(
                         response => {
                             message.loading('Accepting the proposal:' + proposalId, 2)
@@ -121,7 +116,7 @@ class ProposalDetails extends React.Component {
                 disabled={!accepted}
                 onConfirm={() => {
 
-                    loanService.syndicateLoan(this.props.braidConnect, proposalId)
+                    loanService.syndicateLoan(this.props.connection, proposalId)
                         .then(
                             response => {
                                 message.loading('Syndicating the loan:' + this.props.loanInfo.loanId, 2)
@@ -248,19 +243,8 @@ class ProposalDetails extends React.Component {
 }
 
 
-const mapStateToProps = state => {
-    return {
-        braidConnect: state.braidConnect,
-        braidStatus: state.braidStatus
-    };
-};
 
-const mapDispatchToProps = dispatch => {
-    return {};
-};
+export default ProposalDetails;
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(ProposalDetails);
+ProposalDetails.contextType=UserContext;
 
