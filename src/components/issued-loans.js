@@ -24,6 +24,7 @@ class IssuedLoans extends React.Component {
             showProposalForm: false,
             showProposalDetails: false,
             showDisburseModal: false,
+            loadDisburseModal: true,
         };
     }
 
@@ -184,6 +185,7 @@ class IssuedLoans extends React.Component {
         );
     }
 
+
     render() {
 
         const issuedLoanColumns = [
@@ -225,7 +227,7 @@ class IssuedLoans extends React.Component {
                 dataIndex: "action",
                 key: "action",
                 render: (text, record) => (
-                    statusList.indexOf(record.status.toLowerCase()) < 2 ?
+                    statusList.indexOf(record.status.toLowerCase()) < 3 ?
                         this.getActionButton(record) :
                         <Button disabled>
                             none
@@ -261,7 +263,7 @@ class IssuedLoans extends React.Component {
                     footer={null}
                     onCancel={this.handleCancel} >
 
-                    <LoanProposalForm handleOk={this.handleOk} loanInfo={this.state.loanInfo} connection={this.context.connection}/>
+                    <LoanProposalForm handleOk={this.handleOk} loanInfo={this.state.loanInfo} connection={this.context.connection} />
 
                 </Modal>
 
@@ -273,7 +275,7 @@ class IssuedLoans extends React.Component {
                     footer={null}
                     onCancel={this.handleCancel} >
 
-                    <DisburseConfirmDetails handleOk={this.handleOk} loanInfo={this.state.loanInfo} connection={this.context.connection}/>
+                    <DisburseConfirmDetails handleOk={this.handleOk} loanInfo={this.state.loanInfo} connection={this.context.connection} />
 
                 </Modal>
 

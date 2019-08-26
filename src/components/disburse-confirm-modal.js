@@ -2,12 +2,10 @@ import React from 'react';
 import 'antd/dist/antd.css';
 import {
   Select,
-  Icon,
     Alert,
     Result,
     Spin,
-    Empty,
-    Popconfirm,
+    Badge,
     message,
     Collapse,
     Divider,
@@ -15,6 +13,7 @@ import {
     Tag,
     Row,
     Col,
+    Modal
 } from 'antd';
 import { LoanService } from '../services';
 import {connect} from "react-redux";
@@ -25,6 +24,8 @@ const loanService = new LoanService();
 const { Option } = Select;
 
 const { Panel } = Collapse;
+
+const confirm = Modal.confirm;
 
 const text = `
   A dog is a type of domesticated animal.
@@ -74,30 +75,123 @@ class DisburseConfirmDetails extends React.Component {
     this.state = {
         loanDisbursed: false,
         spinning: false,
+        obligationInfo: {},
+        paymentInfoLoading: true,
     }
+
+    this.disburseLoanWithObligation = this.disburseLoanWithObligation.bind(this);
+
   }
+
+   componentDidMount() {
+
+       if (!this.props.loanInfo.obligationId) {
+
+           this.initiateLoanDisbursal(this.props.loanInfo);
+       }
+
+       else {
+           this.fetchObligationInfo(this.props.loanInfo.obligationId)
+
+       }
+   }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
 
 
         if (prevProps !== this.props) {
 
+            if (!this.props.loanInfo.obligationId) {
+
+                this.initiateLoanDisbursal(this.props.loanInfo);
+            }
+
+            else {
+                this.fetchObligationInfo(this.props.loanInfo.obligationId)
+
+            }
+
+
             this.setState({
                 loanDisbursed: false,
             });
         }
+
     }
 
-    disburseLoan(loanId) {
-      this.setState({spinning: true});
-        loanService.disburseLoan(this.props.connection, loanId)
+    fetchObligationInfo(obligationId) {
+
+        let context = this;
+        loanService.fetchObligations(this.context.connection)
             .then(
-                response => {
-                    console.log("Successully disbursed loan:", response);
-                    this.setState({ loanDisbursed: true, spinning: false });
+                obligationList => {
+                    obligationList.forEach((item) => {
+
+                        if (item.obligationId === obligationId){
+                            context.setState({paymentInfoLoading:false,
+                                           obligationInfo: item})
+
+                        }
+                    });
+
                 },
                 error => {
                     console.log("Error while fetching loans:", error);
+                }
+            );
+    }
+
+
+    initiateLoanDisbursal(loanInfo)  {
+
+        const rpc = this.context.connection;
+        let context = this;
+
+        confirm({
+            title: `Payment isn't initiated yet, do you want begin`,
+            okText: 'Confirm',
+            onOk() {
+                context.setState({paymentInfoLoading:true});
+                loanService.createObligation(rpc, loanInfo.amount, 'OBLIGOR', loanInfo.borrowerNode, 10000)
+                    .then(
+                        response => {
+                            context.setState({paymentInfoLoading:false,
+                                obligationInfo: response.state.data});
+                            context.disburseLoanWithObligation(context.props.loanInfo.loanId, response.state.data.linearId.id)
+                        },
+                        error => {
+                            console.log("Error while fetching loans:", error);
+                        }
+                    );
+            },
+            onCancel() { },
+        });
+    };
+
+    disburseLoanWithObligation( loanId, obligationId) {
+        loanService.disburseLoanWithObligation(this.props.connection, loanId, obligationId)
+            .then(
+                response => {
+                    console.log("Successfully added obligation to loan:", response);
+                    this.setState({spinning: false });
+                },
+                error => {
+                    console.log("Error while adding obligation to loan:", error);
+                }
+            );
+    }
+
+
+    disburseLoan(loanId) {
+      this.setState({spinning: true});
+        loanService.settleObligation(this.props.connection, this.state.obligationInfo.amount, this.state.obligationInfo.obligationId)
+            .then(
+                response => {
+                    console.log("Successfully settled obligation:", response);
+                    this.setState({ loanDisbursed: true, spinning: false });
+                },
+                error => {
+                    console.log("Error while settling obligation:", error);
                 }
             );
     }
@@ -145,20 +239,92 @@ class DisburseConfirmDetails extends React.Component {
                     <DescriptionItem title="Amount" content={this.props.loanInfo.amount} />
 
             </Row>
+            <Spin size="large" spinning={this.state.paymentInfoLoading}>
+
+                { this.state.obligationInfo.settlementMethod ?
+                    <div>
+                    <Alert
+                        message="Payment Method"
+                        description={<span>
+
+                                        <Row>
+
+                                            <DescriptionItem title="Settlement Type" content={this.state.obligationInfo.settlementMethod._type} />
+
+                                        </Row>
+
+                                        <Row>
+
+                                            <DescriptionItem title="Receiving Address" content={this.state.obligationInfo.settlementMethod.accountToPay} />
+
+                                        </Row>
+
+                                    </span>
+                                    }
+                        type="success"
+                    />
+                    <br/>
+
+                    <Collapse>
+                    <Panel header="Payments" extra={<Badge showZero count={this.state.obligationInfo.payments.length} style={this.state.obligationInfo.payments.length > 0 ? { backgroundColor: '#52c41a'} : { backgroundColor: '#fff', color: '#999', boxShadow: '0 0 0 1px #d9d9d9 inset' }} />}>
+
+
+
+                        {this.state.obligationInfo.payments.map((payment) =>{
+                            return (
+                                <div>
+                                    <Alert
+                                        description={<span>
+                    <Row>
+                        <DescriptionItem title="Amount" content={payment.amount.quantity * payment.amount.displayTokenSize + " "+ payment.amount.token.tokenIdentifier}/>
+
+                    </Row>
+                    <Row>
+                        <DescriptionItem title="Status" content={payment.status} />
+
+                    </Row>
+                    <Row>
+                        <DescriptionItem title="Reference" content={<a target="_blank" href={"https://test.bithomp.com/explorer/"+ payment.paymentReference}>{payment.paymentReference}</a>} />
+
+                    </Row>
+                        </span>}
+                                        type={payment.status === "SETTLED" ? "success" : "warning"}
+                                        showIcon
+                                    />
+                                    <br />
+                                </div>
+
+                            )
+
+
+
+                        })
+                }
+                    </Panel>
+                    </Collapse>
+                    </div>
+
+                    :
+                    <Alert description= "No payment method found" type="warning" showIcon/>
+                }
+
+            </Spin>
+
             <Divider/>
             <Row>
             <div style={{float: "right"}}>
-                <Button type="secondary" onClick={() => {this.disburseLoan(this.props.loanInfo.loanId)}} style={{marginRight:'15px'}}>
+                <Button type="secondary" onClick={() => {}} style={{marginRight:'15px'}}>
                     CANCEL
                 </Button>
-                <Button type="primary" onClick={() => {this.disburseLoan(this.props.loanInfo.loanId)}} style={{marginRight:'15px'}}>
-                    ACCEPT
+                <Button type="primary" disabled={!this.state.obligationInfo.settlementMethod} onClick={() => {this.disburseLoan(this.props.loanInfo.loanId)}} style={{marginRight:'15px'}}>
+                    DIBURSE LOAN
                 </Button>
             </div>
             </Row>
 
-        </div>
-              </Spin>
+            </div>
+      </Spin>
+
 
 
 
