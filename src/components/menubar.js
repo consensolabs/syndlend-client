@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Layout, Menu, Dropdown, Icon } from "antd";
+import { Layout, Menu, Dropdown, Icon, Row, Col } from "antd";
 import { setActiveRole } from '../actions';
 
 const { Header } = Layout;
@@ -34,7 +34,15 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
     }
     return (
         <Header className="header">
-        <div className="nologo" />
+        <Row>
+        <Col span={1}>
+        <div className="syndlend-doodle" />
+        </Col>
+
+        <Col span={2}>
+        <span style={{color: '#bea6c6', fontSize: 20}}> SyndLend </span>
+        </Col>
+        <Col span={21}>
         <Dropdown.Button
           className="user-btn"
           overlay={menu}
@@ -43,6 +51,8 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
           {roleMap[activeRoleId]}
         </Dropdown.Button>
         <Menu theme="dark" mode="horizontal" style={{ lineHeight: "64px" }} />
+        </Col>
+        </Row>
       </Header>
     )
 }

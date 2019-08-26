@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import { Menu, Dropdown, Layout, Modal, Icon, Spin, Alert, Row, Col } from "antd";
+import { Menu, Dropdown, Layout, Modal, Icon, Spin, Alert, Row } from "antd";
 import Dashboard from './components/dashboard.js';
 import Menubar from './components/menubar.js';
 import Profile from './components/profile.js';
@@ -18,7 +18,7 @@ import {BraidService} from './services/braid.service';
 const loanService = new LoanService();
 const braidService = new BraidService();
 
-const { Content } = Layout;
+const { Header, Content } = Layout;
 
 class App extends React.Component {
 
@@ -78,6 +78,12 @@ class App extends React.Component {
         });
     };
 
+    toggleSideMenu = () => {
+        this.setState({
+            collapsed: !this.state.collapsed,
+        });
+    };
+
     async onNodeChange (url) {
 
         this.setState({loading: true});
@@ -111,7 +117,7 @@ class App extends React.Component {
     showConfirm() {
       return(
         <Modal
-            title={<div><Row className="logo" /><Row span={12} style={{marginLeft: 18}}>User Login</Row></div>}
+            title={<div><Row className="syndlend-logo" /><Row span={12} style={{marginLeft: 18}}>User Login</Row></div>}
             visible={!this.state.login}
             onOk={this.handleOk}
             confirmLoading={this.state.confirmLoading}
@@ -155,12 +161,20 @@ class App extends React.Component {
                     <Layout>
                         <Menubar/>
                         <Layout>
-                            <SideMenuBar/>
-                            <Layout style={{padding: "0 24px 24px"}}>
+                            <SideMenuBar collapsed={this.state.collapsed}/>
+                            <Layout>
+                                <Header style={{ background: '#fff', paddingLeft: 20, height: 50 }}>
+                                    <Icon
+                                        className="trigger"
+                                        type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
+                                        onClick={this.toggleSideMenu}
+                                    />
+                                </Header>
+
                                 <Content style={{
                                     background: "#fff",
                                     padding: 24,
-                                    margin: "16px 0px 0px 0px",
+                                    margin: '24px 16px',
                                     minHeight: 280
                                 }}>
                                     <Switch>

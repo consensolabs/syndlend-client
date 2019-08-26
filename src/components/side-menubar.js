@@ -4,37 +4,50 @@ import { Layout, Menu, Icon } from "antd";
 
 const { Sider } = Layout;
 
-const SideMenuBar = () => {
-    return (
-        <Sider width={200} style={{ background: "#fff" }}>
-            <Menu mode="inline" defaultSelectedKeys={["0"]} className="main-menu">
-                <Menu.Item key="0">
-                    <NavLink to="/">
-                        <span>
-                            <Icon type="dashboard" />
+class SideMenuBar extends React.Component {
+
+
+    constructor(props) {
+        super(props);
+
+    }
+
+
+    render() {
+        return (
+            <Sider width={200} collapsible collapsed={this.props.collapsed}>
+                <Menu theme="dark" mode="inline" defaultSelectedKeys={["0"]} className="main-menu">
+                    <Menu.Item key="0">
+                        <NavLink to="/">
+                            <Icon type="dashboard"/>
+                            <span>
                             Dashboard
                         </span>
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="1">
-                    <NavLink to="/transactions">
-                        <span>
-                            <Icon type="swap" />
+                        </NavLink>
+                    </Menu.Item>
+                    <Menu.Item key="1">
+                        <NavLink to="/transactions">
+
+                            <Icon type="swap"/>
+                            <span>
                             Transactions
                         </span>
-                    </NavLink>
-                </Menu.Item>
-                <Menu.Item key="2">
-                    <NavLink to="/profile">
-                        <span>
-                            <Icon type="user" />
+                        </NavLink>
+                    </Menu.Item>
+                    <Menu.Item key="2">
+                        <NavLink to="/profile">
+
+                            <Icon type="user"/>
+                            <span>
                             Profile
                         </span>
-                    </NavLink>
-                </Menu.Item>
-            </Menu>
-        </Sider>
-    );
+                        </NavLink>
+                    </Menu.Item>
+                </Menu>
+            </Sider>
+        );
+    }
+
 };
 
 export default SideMenuBar;

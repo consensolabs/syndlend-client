@@ -12,7 +12,15 @@
   float: left;
 }
 
-.logo {
+.syndlend-doodle {
+  background: url(./images/syndlend-doodle.png) no-repeat center;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+
+}
+
+.syndlend-logo {
   background: url(./images/syndlend-logo.png) no-repeat center;
   display: inline-block;
   width: 200px;
