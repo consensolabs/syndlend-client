@@ -181,6 +181,7 @@ export class LoanService {
                     borrowerNode: item.state.data.borrowerNode.name,
                     owner: item.state.data.owner.name,
                     loanId: item.state.data.loanId.id,
+                    obligationId: item.state.data.obligationId ? item.state.data.obligationId.id : null,
                     amount: item.state.data.amount,
                     status: item.state.data.status,
 
@@ -214,6 +215,108 @@ export class LoanService {
             });
         return promiseFunction;
     };
+
+
+    updatePaymentMethod(braidConnect, id, address, oracle) {
+        let promiseFunction = braidConnect.settlerService.updateSettlementMethod(
+            id,
+            address,
+            oracle
+        )
+            .then(response => {
+                console.log("updatePaymentMethod-Response:", response)
+                return response;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+    novateObligation(braidConnect, id, oracle) {
+        let promiseFunction = braidConnect.settlerService.novateObligation(
+            id,
+            oracle
+        )
+            .then(response => {
+                console.log("novateObligation-Response:", response)
+                return response;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+    createObligation(braidConnect, amount, role, counterParty, dueTimeDelta) {
+        let promiseFunction = braidConnect.settlerService.createObligation(
+            amount,
+            role,
+            counterParty,
+            dueTimeDelta
+        )
+            .then(response => {
+                console.log("createObligation-Response:", response)
+                return response;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+    settleObligation(braidConnect, amount, obligationId) {
+        let promiseFunction = braidConnect.settlerService.settleObligation(
+            amount,
+            obligationId
+        )
+            .then(response => {
+                console.log("createObligation-Response:", response)
+                return response;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+    disburseLoanWithObligation(braidConnect, loanId, obligationId) {
+        let promiseFunction = braidConnect.syndService.disburseLoanWithObligation(
+            loanId,
+            obligationId
+        )
+            .then(response => {
+                console.log("disburseLoanWithObligation-Response:", response)
+                return response;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
+    fetchObligations(braidConnect) {
+        let promiseFunction = braidConnect.settlerService.listObligations()
+            .then(response => {
+                const dataSource = response.map(item => ({
+                    key: item.state.data.linearId.id,
+                    obligationId: item.state.data.linearId.id,
+                    lenderNode: item.state.data.obligor.name,
+                    amount: parseInt(item.state.data.faceAmount.quantity) * parseFloat(item.state.data.faceAmount.displayTokenSize),
+                    status: item.state.data.settlementStatus,
+                    settlementMethod: item.state.data.settlementMethod,
+                    payments: item.state.data.payments
+
+                }));
+                console.log("fetchObligations-Response:", dataSource)
+                return dataSource;
+            })
+            .catch(error => {
+                throw (error);
+            });
+        return promiseFunction;
+    };
+
 
     updateLoanStatus(braidConnect, id, status) {
         let promiseFunction = braidConnect.syndService.issueLoan(

@@ -118,7 +118,7 @@ class RequestedLoans extends React.Component {
             },
             onCancel() { },
         });
-    }
+    };
 
     render() {
         const statusList = ['open', 'verified', 'issued', 'proposed', 'locked', 'complete'];

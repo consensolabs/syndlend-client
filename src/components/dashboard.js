@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from 'react-redux';
 import RequestedLoans from './requested-loans';
 import IssuedLoans from './issued-loans';
+import DisbursalDetails from './disbursal-details';
+
 
 class Dashboard extends React.Component {
 
@@ -17,6 +19,7 @@ class Dashboard extends React.Component {
         <React.Fragment>
           <h2> Dashboard </h2>
           <RequestedLoans roleId={this.props.activeRoleId}/>
+          <DisbursalDetails />
         </React.Fragment>
       );
       case '1': return (
