@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Layout, Menu, Dropdown, Icon, Row, Col } from "antd";
 import { setActiveRole } from '../actions';
@@ -33,8 +34,10 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
         '2': 'Lender',
     }
     return (
-        <Header className="header">
+        <Header className="header" style={{backgroundColor: "#17293c"}}>
         <Row>
+        <NavLink to="/">
+
         <Col span={1}>
         <div className="syndlend-doodle" />
         </Col>
@@ -42,6 +45,7 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
         <Col span={2}>
         <span style={{color: '#bea6c6', fontSize: 20}}> SyndLend </span>
         </Col>
+        </NavLink>
         <Col span={21}>
         <Dropdown.Button
           className="user-btn"
@@ -50,7 +54,7 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
         >
           {roleMap[activeRoleId]}
         </Dropdown.Button>
-        <Menu theme="dark" mode="horizontal" style={{ lineHeight: "64px" }} />
+        <Menu theme="dark" mode="horizontal" style={{ lineHeight: "64px", backgroundColor: "#17293c"}} />
         </Col>
         </Row>
       </Header>
