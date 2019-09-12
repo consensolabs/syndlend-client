@@ -1,9 +1,11 @@
 import React from 'react';
-import { Skeleton, InputNumber, Row, Col, Button, Statistic, Table, Divider, Progress, Icon, Popover, Card } from 'antd';
+import { Modal, Skeleton, InputNumber, Row, Col, Button, Statistic, Table, Divider, Progress, Icon, Popover, Card } from 'antd';
 import { connect } from 'react-redux';
 import { LoanService } from '../services';
 import {UserService} from "../services";
 import {UserContext} from '../Context';
+import AddProjectForm from "./add-project-modal";
+import ProjectDetails from "./project-details-modal";
 
 
 const loanService = new LoanService();
@@ -52,51 +54,6 @@ const collateralCols = [
   },
 ];
 
-const projectsData = [
-  {
-    key: '1',
-    id: 'REF0023',
-    lender: 'Agent 001',
-    description: 'Pro Description',
-    status: 'Issued'
-  },
-  {
-    key: '2',
-    id: 'REF0024',
-    lender: 'Agent 002',
-    description: 'Pro Description',
-    status: 'Proposed'
-  },
-];
-
-const projectCols = [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-  },
-  {
-    title: 'Lender',
-    dataIndex: 'lender',
-    key: 'lender',
-  },
-  {
-    title: 'Description',
-    dataIndex: 'description',
-    key: 'description',
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: status => (
-      <span>
-        <a href="">{status}</a>
-      </span>
-    )
-  },
-];
-
 
 class Profile extends React.Component {
 
@@ -116,6 +73,11 @@ class Profile extends React.Component {
             fundValue: 1000000,
             userInfospinning: true,
             userDetails: {},
+            projectsData: [],
+            projectDetails: {},
+            projctInfospinning: true,
+            showAddProjectForm: false,
+            showProjectDetailsModal: false
         }
     }
 
@@ -125,6 +87,7 @@ class Profile extends React.Component {
         this.fetchPeerInfo();
         this.fetchAccountBalance();
         this.fetchUsersInfo(this.context.me.owningKey);
+        this.fetchProjectsInfo(this.context.me.owningKey);
 
 
     }
@@ -147,6 +110,21 @@ class Profile extends React.Component {
                     console.log("Error while fetching user details:", error);
                 });
 
+    }
+
+
+    // Fetching user info from the centralized verification server
+    fetchProjectsInfo(sharedId) {
+        userService.fetchProjectsInfo(null, sharedId)
+            .then(
+                projectList => {
+
+                        this.setState({projectsData: projectList, projctInfospinning: false});
+                   }
+            ).catch(
+            error => {
+                console.log("Error while fetching user details:", error);
+            });
     }
 
 
@@ -230,6 +208,35 @@ class Profile extends React.Component {
         });
     };
 
+
+    showAddProjectModal = () => {
+        this.setState({
+            showAddProjectForm: true
+        });
+    };
+
+    showProjectDetailsModal = (record) => {
+        this.setState({
+            showProjectDetailsModal: true,
+            projectDetails: record
+        });
+    };
+
+    handleOk = e => {
+        this.setState({
+            showAddProjectForm: false,
+            showProjectDetailsModal: false
+        });
+        this.fetchProjectsInfo(this.context.me.owningKey);
+    };
+
+    handleCancel = e => {
+        this.setState({
+            showAddProjectForm: false,
+            showProjectDetailsModal: false
+        });
+    };
+
     handleVisibleChange = popOverVisible => {
         this.setState({ popOverVisible });
     };
@@ -240,7 +247,34 @@ class Profile extends React.Component {
 
     render() {
 
-  return (
+        const projectCols = [
+            {
+                title: 'ID',
+                dataIndex: 'id',
+                key: 'id',
+            },
+            {
+                title: 'Title',
+                dataIndex: 'name',
+                key: 'name',
+                render: (name, record) => (
+                    <Button type="link"  onClick={() => {this.showProjectDetailsModal(record);}}>{name}</Button>
+                )
+            },
+            {
+                title: 'Projected Net Income',
+                dataIndex: 'p_net_income',
+                key: 'p_net_income',
+            },
+            {
+                title: 'Started',
+                dataIndex: 'created',
+                key: 'created',
+            },
+        ];
+
+
+        return (
     <div>
 
       <h2>Profile</h2>
@@ -460,12 +494,16 @@ class Profile extends React.Component {
             <h2>Collaterals</h2>
         </Col>
         <Col style={{float:'right'}}>
-            <Button type="link" style={{float:'right',fontWeight:'500'}}>+ ADD A COLLATERAL</Button>
+            <Button type="link" style={{float:'right',fontWeight:'500'}} onClick={() => {this.showAddProjectModal();}}>+ ADD A COLLATERAL</Button>
         </Col>
       </Row>
       <Row style={{ margin: '20px 0px' }}>
         <Col span={20}>
-          <Table dataSource={collateralData} columns={collateralCols} />
+          <Table
+              dataSource={collateralData}
+              columns={collateralCols}
+              pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '30'] }}
+          />
         </Col>
       </Row>
       <Row style={{ margin: '20px 0px' }}>
@@ -473,14 +511,41 @@ class Profile extends React.Component {
             <h2>Projects</h2>
         </Col>
         <Col style={{float:'right'}}>
-            <Button type="link" style={{float:'right',fontWeight:'500'}}>+ ADD A PROJECT</Button>
+            <Button type="link" style={{float:'right',fontWeight:'500'}} onClick={() => {this.showAddProjectModal();}}>+ ADD A PROJECT</Button>
         </Col>
       </Row>
       <Row style={{ margin: '20px 0px' }}>
         <Col span={20}>
-          <Table dataSource={projectsData} columns={projectCols} />
+          <Table
+              dataSource={this.state.projectsData}
+              columns={projectCols}
+              pagination={{ defaultPageSize: 5, showSizeChanger: true, pageSizeOptions: ['5', '10', '15', '20', '30'] }}
+          />
         </Col>
       </Row>
+        <Modal
+            title="Add a Project"
+            visible={this.state.showAddProjectForm}
+            onOk={this.handleOk}
+            footer={null}
+            onCancel={this.handleCancel}
+            >
+
+        <AddProjectForm handleOk={this.handleOk} me={this.context.me}/>
+
+    </Modal>
+    <Modal
+        title="Project Details"
+        visible={this.state.showProjectDetailsModal}
+        onOk={this.handleOk}
+        footer={null}
+        onCancel={this.handleCancel}
+    >
+
+        <ProjectDetails projectDetails={this.state.projectDetails} handleOk={this.handleOk} me={this.context.me}/>
+
+    </Modal>
+
     </div>
   );
 }
