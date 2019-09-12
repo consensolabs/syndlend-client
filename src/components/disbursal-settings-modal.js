@@ -212,7 +212,7 @@ class DisbursalSettings extends React.Component {
 
                   <Form.Item label="Receiving XRP address" labelAlign="left">
                       {getFieldDecorator('address', {
-                          initialValue: 'rBf2SeEY5SYMipA2zk2spuhwRZD5jGDWVZ',
+                          initialValue: 'rawuE2jrw7hJtmjasyse6Jy7Mma3iBCzco',
                           rules: [{required: true, message: 'Please input receiving XRP address!'}],
                       })(<Input/>)}
                   </Form.Item>
