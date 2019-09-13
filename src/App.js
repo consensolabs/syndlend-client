@@ -27,8 +27,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-
-
+    this.nodeInfo = {};
 
     this.state = {
         login: false,
@@ -36,6 +35,14 @@ class App extends React.Component {
         me: {},
         loading: true,
     }
+  }
+
+  componentDidMount() {
+
+      const nodeInfo = JSON.parse(localStorage.getItem('nodeInfo'));
+      if (nodeInfo) {
+          this.autoLogin(nodeInfo);
+      }
   }
 
     sleep(ms) {
@@ -64,6 +71,10 @@ class App extends React.Component {
             confirmLoading: true,
         });
         setTimeout(() => {
+
+            // Setting the user session
+            localStorage.setItem('nodeInfo', JSON.stringify(this.nodeInfo));
+
             this.setState({
                 visible: false,
                 confirmLoading: false,
@@ -84,9 +95,10 @@ class App extends React.Component {
         });
     };
 
-    async onNodeChange (url) {
+    async onNodeChange (url, role) {
 
         this.setState({loading: true});
+        this.nodeInfo = {"url": url, "role": role};
 
         braidService.connect(url);
         while (!braidService.connected) {
@@ -100,6 +112,24 @@ class App extends React.Component {
 
     }
 
+    async autoLogin (nodeInfo) {
+
+        this.setState({loading: true});
+
+        braidService.connect(nodeInfo.url);
+        while (!braidService.connected) {
+            console.log("waiting for connection: sleeping for 100 ms")
+            await this.sleep(100);
+        }
+
+        this.contextData["connection"] = braidService.connection;
+
+        this.fetchMyInfo();
+        this.setState({login:true});
+        this.props.onRoleChange(nodeInfo.role)
+
+    }
+
 
 
     getNodes= () =>{
@@ -107,7 +137,7 @@ class App extends React.Component {
             {name:"Agent node",url: "http://localhost:8002/api/", roleId: "1"},
             {name:"Lender node",url: "http://localhost:8003/api/", roleId: "2"}];
         return(
-            <Menu onClick={({item})=>{console.log(item);this.onNodeChange(item.props.url);this.props.onRoleChange(item.props.roleId);}}>
+            <Menu onClick={({item})=>{console.log(item);this.onNodeChange(item.props.url, item.props.roleId);this.props.onRoleChange(item.props.roleId);}}>
                 {
                     nodeList.map((node) =><Menu.Item key={node.name} url={node.url} roleId={node.roleId}>{node.name}</Menu.Item>)
                 }

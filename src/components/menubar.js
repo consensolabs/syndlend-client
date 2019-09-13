@@ -9,7 +9,17 @@ const { Header } = Layout;
 const Menubar = ({ activeRoleId, onRoleChange }) => {
 
     const handleMenuClick = (e) => {
-        onRoleChange(e.key);
+        if (parseInt(e.key) < 3) {
+            onRoleChange(e.key);
+        }
+        else {
+            userLogOut()
+        }
+    };
+
+    const userLogOut = () => {
+        localStorage.removeItem('nodeInfo');
+        window.location.reload();
     };
 
     const menu = (
@@ -24,6 +34,9 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
         <Menu.Divider />
         <Menu.Item key="2">
             <span> Lender </span>
+        </Menu.Item>
+        <Menu.Item key="3">
+            <span> Logout </span>
         </Menu.Item>
         </Menu>
     );
