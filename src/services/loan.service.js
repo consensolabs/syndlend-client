@@ -154,10 +154,12 @@ export class LoanService {
     fetchRequestedLoans(braidConnect) {
         let promiseFunction = braidConnect.syndService.listLoanRequests()
             .then(response => {
+                console.log(response);
                 const dataSource = response.map(item => ({
                     key: item.state.data.loanReqID.id,
                     loanReqID: item.state.data.loanReqID.id,
-                    companyName: item.state.data.companyName,
+                    borrowerName: item.state.data.financeNode.name,
+                    borrowerKey: item.state.data.financeNode.owningKey,
                     timestamp: item.state.data.timestamp,
                     amount: item.state.data.amount,
                     status: item.state.data.status

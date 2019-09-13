@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Modal, Button, Table, Divider, Spin, Tag, Popover } from "antd";
 import { LoanService } from '../services';
 import LoanReqFormWrapper from "./loan-request-wrapper.js";
+import LoanRequestDetails from "./loan-request-details-modal";
 import StatusFlowDisplayWrapper from "./status-display-wrapper.js";
 import {UserContext} from "../Context";
 import Transactions from "./transactions";
@@ -22,6 +23,7 @@ class RequestedLoans extends React.Component {
             requestedLoans: [],
             peers: [],
             loanRequestStatus: null,
+            showLoanRequestDetailsModal: false
         };
         this.showLoanReqModal = this.showLoanReqModal.bind(this);
         this.showStatusSliderModal = this.showStatusSliderModal.bind(this);
@@ -74,10 +76,18 @@ class RequestedLoans extends React.Component {
         });
     };
 
+    showLoanRequestDetailsModal = (record) => {
+        this.setState({
+            showLoanRequestDetailsModal: true,
+            loanRequestDetails: record
+        });
+    };
+
     handleOk = e => {
         this.setState({
             showForm: false,
-            showSlider: false
+            showSlider: false,
+            showLoanRequestDetailsModal: false
         });
         this.fetchRequestedLoans();
     };
@@ -85,7 +95,8 @@ class RequestedLoans extends React.Component {
     handleCancel = e => {
         this.setState({
             showForm: false,
-            showSlider: false
+            showSlider: false,
+            showLoanRequestDetailsModal: false
         });
     };
 
@@ -127,12 +138,15 @@ class RequestedLoans extends React.Component {
             {
                 title: "REQ ID",
                 dataIndex: "loanReqID",
-                key: "loanReqID "
+                key: "loanReqID ",
+                render: (id, record) => (
+                    <Button type="link"  onClick={() => {this.showLoanRequestDetailsModal(record);}}>{id}</Button>
+                )
             },
             {
-                title: "Borrower Name",
-                dataIndex: "companyName",
-                key: "companyName"
+                title: "Borrower Node",
+                dataIndex: "borrowerName",
+                key: "borrowerName"
             },
             {
                 title: "Timestamp",
@@ -238,6 +252,18 @@ class RequestedLoans extends React.Component {
                     onCancel={this.handleCancel} >
 
                     <StatusFlowDisplayWrapper status={this.state.loanRequestStatus}/>
+
+                </Modal>
+
+                <Modal
+                    title="Loan Request Details"
+                    visible={this.state.showLoanRequestDetailsModal}
+                    onOk={this.handleOk}
+                    footer={null}
+                    onCancel={this.handleCancel}
+                >
+
+                    <LoanRequestDetails loanRequestDetails={this.state.loanRequestDetails} handleOk={this.handleOk} me={this.context.me}/>
 
                 </Modal>
             </React.Fragment>
