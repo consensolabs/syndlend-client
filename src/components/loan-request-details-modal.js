@@ -81,13 +81,22 @@ class LoanRequestDetails extends React.Component {
     fetchProjectsInfo(sharedId) {
         userService.fetchProjectsInfo(null, sharedId)
             .then(
-                projectList => {
 
-                    this.setState({projectsData: projectList, projectInfospinning: false});
-                }
+                projectList =>
+                {
+                    this.setState({projectInfospinning: false});
+
+                    if (projectList.meta.status) {
+
+
+                        this.setState({projectsData: projectList});
+                    }
+                    else {
+                        console.log("Error while fetching user   details:", projectList.meta.message);
+                    }}
             ).catch(
             error => {
-                console.log("Error while fetching user details:", error);
+                console.log("Error while fetching project details:", error);
             });
     }
 
@@ -132,6 +141,15 @@ class LoanRequestDetails extends React.Component {
             <Row>
                 <DescriptionItem title="Amount" content={"$ " + this.props.loanRequestDetails.amount}/>
             </Row>
+
+            <Row>
+                <DescriptionItem title="Interest Rate" content={this.props.loanRequestDetails.interestRate + " %"}/>
+            </Row>
+
+            <Row>
+                <DescriptionItem title="Lock Date (Requested)" content={this.props.loanRequestDetails.lockDate}/>
+            </Row>
+
             <Row>
                 <DescriptionItem title="Loan Request Status" content={this.props.loanRequestDetails.status}/>
             </Row>

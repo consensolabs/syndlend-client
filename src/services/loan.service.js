@@ -85,11 +85,12 @@ export class LoanService {
 
 
 
-    createLoanRequest(braidConnect, agent, amount, company) {
+    createLoanRequest(braidConnect, agent, amount, interest, lockDate) {
         let promiseFunction = braidConnect.syndService.createLoanRequest(
             agent,
             amount,
-            company
+            interest,
+            lockDate
         )
             .then(response => {
                 console.log("createLoanRequest-Response:", response)
@@ -162,6 +163,8 @@ export class LoanService {
                     borrowerKey: item.state.data.financeNode.owningKey,
                     timestamp: item.state.data.timestamp,
                     amount: item.state.data.amount,
+                    interestRate: item.state.data.interestRate,
+                    lockDate: item.state.data.lockDate,
                     status: item.state.data.status
                 }))
                 console.log("fetchLoanRequests-Response:", dataSource)

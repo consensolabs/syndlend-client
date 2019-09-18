@@ -32,7 +32,9 @@ class loanRequestForm extends React.Component {
       if (!err) {
         console.log('Received values of form: ', values);
 
-        loanService.createLoanRequest(this.props.connection, values.bank, values.amount,"Consenso Labs")
+        console.log(values.lockdate.format("YYYY-MM-DD hh:mm:ss"));
+
+        loanService.createLoanRequest(this.props.connection, values.bank, values.amount, values.interest, values.lockdate.format("YYYY-MM-DD hh:mm:ss"))
           .then(
             response => {
               console.log("response:",response);
@@ -92,7 +94,7 @@ class loanRequestForm extends React.Component {
             </Form.Item>
 
             <Form.Item label="Lock Date (Expected)">
-                {getFieldDecorator('lock-date', config)(<DatePicker />)}
+                {getFieldDecorator('lockdate', config)(<DatePicker format={"YYYY-MM-DD"} />)}
             </Form.Item>
 
             <Form.Item label="Arranger Bank" hasFeedback>
