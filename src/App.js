@@ -30,9 +30,11 @@ class App extends React.Component {
     this.nodeInfo = {};
 
     this.state = {
+        nodeSelected: false,
         login: false,
         confirmLoading: false,
         me: {},
+        contextData: {},
         loading: true,
     }
   }
@@ -56,9 +58,9 @@ class App extends React.Component {
       loanService.myInfo(braidService.connection)
           .then(
               me => {
+                  this.contextData["me"] = me;
                   this.setState({ me: me,
                       loading: false});
-                  this.contextData["me"] = me;
 
               },
               error => {
@@ -97,7 +99,7 @@ class App extends React.Component {
 
     async onNodeChange (url, role) {
 
-        this.setState({loading: true});
+        this.setState({loading: true, nodeSelected: true});
         this.nodeInfo = {"url": url, "role": role};
 
         braidService.connect(url);
@@ -114,7 +116,7 @@ class App extends React.Component {
 
     async autoLogin (nodeInfo) {
 
-        this.setState({loading: true});
+        this.setState({loading: true, nodeSelected: true});
 
         braidService.connect(nodeInfo.url);
         while (!braidService.connected) {
@@ -124,7 +126,7 @@ class App extends React.Component {
 
         this.contextData["connection"] = braidService.connection;
 
-        this.fetchMyInfo();
+        await this.fetchMyInfo();
         this.setState({login:true});
         this.props.onRoleChange(nodeInfo.role)
 
@@ -153,15 +155,16 @@ class App extends React.Component {
             confirmLoading={this.state.confirmLoading}
             onCancel={this.handleCancel} >
 
-            <div>
 
             <Dropdown overlay={this.getNodes()}>
                 <a className="ant-dropdown-link" href="#">
                     Select a node to connect <Icon type="down" />
                 </a>
-            </Dropdown>,
+            </Dropdown>
 
+            {this.state.nodeSelected?
 
+            <div>
 
                 <Spin spinning={this.state.loading}>
                 <Alert
@@ -174,7 +177,17 @@ class App extends React.Component {
 
                 Do you want to continue?
 
-            </div>
+            </div> :
+
+            <Alert
+                    message="Selected a node"
+                    // description={<span><Icon style={{ fontSize: '24px', color: '#08c' }}  type="bank"/> {this.state.me.name} </span>}
+                    type="warning"
+                    showIcon
+            />
+
+
+            }
 
 
 
@@ -184,8 +197,10 @@ class App extends React.Component {
 
   render() {
 
+        console.log("inside render", this.contextData);
+
     return (
-        this.state.login ?
+        this.state.login && ! this.state.loading?
             <UserContext.Provider value={this.contextData}>
                 <BrowserRouter>
                     <Layout>
