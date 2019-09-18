@@ -116,7 +116,11 @@ class ProposalDetails extends React.Component {
                 disabled={!accepted}
                 onConfirm={() => {
 
-                    loanService.syndicateLoan(this.props.connection, proposalId)
+                    let proposalIds = [];
+
+                    this.props.lendProposals.map((proposal) => {proposalIds.push(proposal.proposalId)})
+
+                    loanService.syndicateLoan(this.props.connection, proposalIds)
                         .then(
                             response => {
                                 message.loading('Syndicating the loan:' + this.props.loanInfo.loanId, 2)
