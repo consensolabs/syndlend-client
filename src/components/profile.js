@@ -117,13 +117,19 @@ class Profile extends React.Component {
     fetchProjectsInfo(sharedId) {
         userService.fetchProjectsInfo(null, sharedId)
             .then(
-                projectList => {
+                projectList =>
+                {
+                    if (projectList.meta.status) {
+
 
                         this.setState({projectsData: projectList, projctInfospinning: false});
-                   }
+                    }
+                    else {
+                        console.log("Error while fetching user details:", projectList.meta.message);
+                    }}
             ).catch(
             error => {
-                console.log("Error while fetching user details:", error);
+                console.log("Error while fetching project details:", error);
             });
     }
 

@@ -42,10 +42,10 @@ export class UserService {
 
             }).then(res => res.json())
             .then(function (response) {
-                let projectsList = [];
+                let projectsList = response;
 
                 if (response.data) {
-                projectsList = response.data.map(item => ({
+                projectsList["data"] = response.data.map(item => ({
                     key: item.id,
                     id: item.id,
                     name: item.name,
