@@ -6,10 +6,12 @@ import {UserService} from "../services";
 import {UserContext} from '../Context';
 import AddProjectForm from "./add-project-modal";
 import ProjectDetails from "./project-details-modal";
+import {RippleService} from "../services/ripple.service";
 
 
 const loanService = new LoanService();
 const userService = new UserService();
+const rippleService = new RippleService();
 
 
 const collateralData = [
@@ -68,6 +70,7 @@ class Profile extends React.Component {
         this.state = {
             peers: [],
             cashBalance: '0 USD',
+            xrpAccountDetails: {},
             me: '',
             popOverVisible: false,
             fundValue: 1000000,
@@ -82,12 +85,21 @@ class Profile extends React.Component {
     }
 
 
-    componentWillMount() {
+    async componentWillMount() {
 
         this.fetchPeerInfo();
         this.fetchAccountBalance();
         this.fetchUsersInfo(this.context.me.owningKey);
         this.fetchProjectsInfo(this.context.me.owningKey);
+
+        await rippleService.connect();
+        rippleService.fetchAccountInfo().then((info) => {
+
+            console.log(info);
+
+            this.setState({xrpAccountDetails: info});
+
+        })
 
 
     }
@@ -439,7 +451,8 @@ class Profile extends React.Component {
                   </Col>
                   </Popover>
                   <Col span={12}>
-                      <Statistic title={"Account Balance (" + this.state.cashBalance.split(' ')[1]+ ")"} value={this.state.cashBalance.split(" ")[0]} precision={2} />
+                      <Statistic title={"Token Account Balance (" + this.state.cashBalance.split(' ')[1]+ ")"} value={this.state.cashBalance.split(" ")[0]} precision={2} />
+                      <Statistic title={"XRP Account Balance (XRP)"} value={this.state.xrpAccountDetails.xrpBalance} precision={2} />
                           <Popover
                               content={this.fundAccountForm()}
                               title="Fund Account"
