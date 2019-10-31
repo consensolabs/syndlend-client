@@ -1,5 +1,3 @@
-import {BraidService} from "./braid.service";
-
 const RippleAPI = require('ripple-lib').RippleAPI;
 
 
@@ -35,15 +33,15 @@ connect = () => {
 }
 
 
-fetchAccountInfo = () => {
+    fetchAccountInfo = () => {
 
-    return this.api.getAccountInfo("rawuE2jrw7hJtmjasyse6Jy7Mma3iBCzco").then(info => {
-        return info;
+        return this.api.getAccountInfo("rawuE2jrw7hJtmjasyse6Jy7Mma3iBCzco").then(info => {
+            return info;
 
-    });
+        }).catch(error => {return {};});
 
 
-}
+    }
 
 
 

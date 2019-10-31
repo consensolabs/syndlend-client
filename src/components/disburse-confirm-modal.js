@@ -27,12 +27,6 @@ const { Panel } = Collapse;
 
 const confirm = Modal.confirm;
 
-const text = `
-  A dog is a type of domesticated animal.
-  Known for its loyalty and faithfulness,
-  it can be found as a welcome guest in many households across the world.
-`;
-
 const customPanelStyle = {
     background: '#f7fff6',
     borderRadius: 4,
@@ -85,6 +79,8 @@ class DisburseConfirmDetails extends React.Component {
 
    componentDidMount() {
 
+       console.log("component mounted");
+
        if (!this.props.loanInfo.obligationId) {
 
            this.initiateLoanDisbursal(this.props.loanInfo);
@@ -99,17 +95,23 @@ class DisburseConfirmDetails extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
 
 
-        if (prevProps !== this.props) {
+      console.log(this.state);
+
+      console.log(this.props.loanInfo.obligationId);
+
+
+        if (prevProps.loanInfo.obligationId !== this.props.loanInfo.obligationId) {
 
             if (!this.props.loanInfo.obligationId) {
 
                 this.initiateLoanDisbursal(this.props.loanInfo);
             }
 
-            else {
-                this.fetchObligationInfo(this.props.loanInfo.obligationId)
 
-            }
+                console.log(this.props.loanInfo.obligationId);
+                this.fetchObligationInfo(this.props.loanInfo.obligationId);
+
+
 
 
             this.setState({
@@ -122,6 +124,8 @@ class DisburseConfirmDetails extends React.Component {
     fetchObligationInfo(obligationId) {
 
         let context = this;
+
+        context.setState({obligationInfo: []});
         loanService.fetchObligations(this.context.connection)
             .then(
                 obligationList => {

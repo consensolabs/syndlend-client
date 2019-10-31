@@ -18,7 +18,6 @@ import Transactions from "./transactions";
 const userService = new UserService();
 
 const { Option } = Select;
-
 const { Panel } = Collapse;
 
 
@@ -89,7 +88,7 @@ class LoanRequestDetails extends React.Component {
                     if (projectList.meta.status) {
 
 
-                        this.setState({projectsData: projectList});
+                        this.setState({projectsData: projectList.data});
                     }
                     else {
                         console.log("Error while fetching user   details:", projectList.meta.message);

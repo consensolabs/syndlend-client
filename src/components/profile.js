@@ -46,10 +46,10 @@ const collateralCols = [
     key: 'documents',
     render: documents => (
       <span>
-        {documents.map(document => {
-          return (
-            <span><a href=''>{document}</a><Divider type="vertical" /></span>
-          );
+        {documents.map((document, index) => {
+            return (
+                <span key={index}><a href=''>{document}</a><Divider type="vertical" /></span>
+            );
         })}
       </span>
     ),
@@ -93,13 +93,15 @@ class Profile extends React.Component {
         this.fetchProjectsInfo(this.context.me.owningKey);
 
         await rippleService.connect();
-        rippleService.fetchAccountInfo().then((info) => {
+        if (rippleService.api.isConnected()) {
+            rippleService.fetchAccountInfo().then((info) => {
 
-            console.log(info);
+                console.log(info);
 
-            this.setState({xrpAccountDetails: info});
+                this.setState({xrpAccountDetails: info});
 
-        })
+            });
+        }
 
 
     }
@@ -134,7 +136,7 @@ class Profile extends React.Component {
                     if (projectList.meta.status) {
 
 
-                        this.setState({projectsData: projectList, projctInfospinning: false});
+                        this.setState({projectsData: projectList.data, projctInfospinning: false});
                     }
                     else {
                         console.log("Error while fetching user details:", projectList.meta.message);
@@ -175,8 +177,8 @@ class Profile extends React.Component {
 
     peerInfo() {
         return(
-            <div>{this.state.peers.map((peer) => {return <p><Icon style={{ fontSize: '24px', color: '#08c' }}  type="bank"/>{peer}</p>})}
-        </div>
+            <div>{this.state.peers.map((peer, index) => {return <p key={index}><Icon style={{ fontSize: '24px', color: '#08c' }}  type="bank"/>{peer}</p>})}
+            </div>
         )
 
     }

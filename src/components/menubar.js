@@ -24,17 +24,21 @@ const Menubar = ({ activeRoleId, onRoleChange }) => {
 
     const menu = (
         <Menu onClick={handleMenuClick}>
-        <Menu.Item key="0">
-            <span> Borrower </span>
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item key="1">
-            <span> Agent </span>
-        </Menu.Item>
-        <Menu.Divider />
+        {/*<Menu.Item key="0">*/}
+            {/*<span> Borrower </span>*/}
+        {/*</Menu.Item>*/}
+        {/*<Menu.Divider />*/}
+        {/*<Menu.Item key="1">*/}
+            {/*<span> Agent </span>*/}
+        {/*</Menu.Item>*/}
+        {/*<Menu.Divider />*/}
+        {/*<Menu.Item key="2">*/}
+            {/*<span> Lender </span>*/}
+        {/*</Menu.Item>*/}
         <Menu.Item key="2">
-            <span> Lender </span>
+            <span> Settings </span>
         </Menu.Item>
+        <Menu.Divider />
         <Menu.Item key="3">
             <span> Logout </span>
         </Menu.Item>
