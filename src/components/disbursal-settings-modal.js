@@ -64,35 +64,34 @@ class DisbursalSettings extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
+          this.setState({
+              confirmLoading: true,
+          });
 
-        loanService.updatePaymentMethod(this.props.connection, this.props.obligationInfo.obligationId, values.address, values.oracle)
+          loanService.novateObligation(this.props.connection, this.props.obligationInfo.obligationId, values.oracle)
           .then(
             response => {
               console.log("response:",response);
-                this.setState({
-                    confirmLoading: true,
-                });
-                setTimeout(() => {
-                    this.setState({
-                        confirmLoading: false,
-                    });
-                    message.success('Payment method updated successfully ', 1);
-                    this.props.form.resetFields();
-                    this.props.handleOk();
-                    loanService.novateObligation(this.props.connection, this.props.obligationInfo.obligationId, values.oracle)
+
+                    loanService.updatePaymentMethod(this.props.connection, this.props.obligationInfo.obligationId, values.address, values.oracle)
                         .then(
                             response => {
-                                console.log("response:",response);
-                                this.setState({
-                                    confirmLoading: true,
-                                });
+                                setTimeout(() => {
+                                        this.setState({
+                                            confirmLoading: false,
+                                        });
+                                        message.success('Payment method updated successfully ', 1);
+                                        this.props.form.resetFields();
+                                        this.props.handleOk();
+                                }, 1000);
 
+                                console.log("response:",response);
                             },
                             error => {
                                 console.log("Error while creating Loan Request:", error);
                             }
                         );
-                }, 5000);
+
 
             },
             error => {
